@@ -1,0 +1,36 @@
+name: Build apps
+
+on:
+  push:
+    tags:
+      - "v*" # uruchamia się przy tagu np. git tag v1.0 && git push --tags
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pyinstaller pillow
+
+      - name: Build 1_ASP_Setup
+        run: pyinstaller --onefile --windowed --name "1_ASP_Setup" 1_ASP_Setup.py
+
+      - name: Build 2_ASP_Archiwum
+        run: pyinstaller --onefile --windowed --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASP-Archiwum-${{ matrix.os }}
+          path: dist/
