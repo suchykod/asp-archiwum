@@ -15,19 +15,23 @@ try:
 except ImportError:
     PIL_AVAILABLE = False
 
-BG          = "#1a1a1a"
-BG_CARD     = "#242424"
-BG_INPUT    = "#2e2e2e"
-ACCENT      = "#00c896"
-ACCENT2     = "#5b8cff"
-ACCENT2_DIM = "#3a6bdd"
-TEXT        = "#f0f0f0"
-TEXT_DIM    = "#888888"
-TEXT_LOG    = "#d4d4d4"
-FONT_UI     = ("Helvetica Neue", 13)
-FONT_MONO   = ("Menlo", 11) if sys.platform == "darwin" else ("Consolas", 10)
-FONT_TITLE  = ("Helvetica Neue", 22, "bold")
-FONT_SUB    = ("Helvetica Neue", 11)
+# ── Paleta – jak instrukcja ASP: biała + neonowa zieleń ──────────────────────
+BG          = "#ffffff"
+BG_DARK     = "#111111"
+GREEN       = "#00e676"
+GREEN_DARK  = "#00b85c"
+BORDER      = "#111111"
+TEXT        = "#111111"
+TEXT_INV    = "#ffffff"
+TEXT_DIM    = "#666666"
+TEXT_LOG    = "#111111"
+BG_LOG      = "#f5f5f5"
+
+FONT_TITLE  = ("Helvetica Neue", 28, "bold") if sys.platform == "darwin" else ("Arial", 22, "bold")
+FONT_UI     = ("Helvetica Neue", 13)         if sys.platform == "darwin" else ("Arial", 12)
+FONT_MONO   = ("Menlo", 10)                  if sys.platform == "darwin" else ("Consolas", 10)
+FONT_SUB    = ("Helvetica Neue", 11)         if sys.platform == "darwin" else ("Arial", 10)
+FONT_LABEL  = ("Helvetica Neue", 10, "bold") if sys.platform == "darwin" else ("Arial", 9, "bold")
 
 IMAGE_EXTENSIONS   = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".gif", ".webp"}
 CATEGORY_FOLDERS   = {"projektowe", "plastyczne", "inne"}
@@ -79,7 +83,7 @@ def iter_projects(root, meta):
             yield level1.name, workshop_code, level2, (rest if rest else workshop_code)
 
 def process_large_archive(root, meta, log):
-    log("━━━  DUŻE ARCHIWUM  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    log("━━  DUŻE ARCHIWUM  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     for cat_label, workshop_code, project_dir, project_name in iter_projects(root, meta):
         log(f"\n  [{cat_label} / {workshop_code}] {project_name}")
         for folder_name, suffix_code in SUFFIX_MAP.items():
@@ -102,9 +106,9 @@ def process_large_archive(root, meta, log):
                 for hidden in sub_dir.rglob(".*"):
                     hidden.unlink()
                 sub_dir.rmdir()
-                log(f"    🗑  Usunięto pusty folder: {folder_name}/")
+                log(f"    ✗  Usunięto pusty folder: {folder_name}/")
             except OSError:
-                log(f"    ⚠  Folder '{folder_name}/' nie jest pusty – sprawdź ręcznie.")
+                log(f"    ⚠  Folder '{folder_name}/' nie jest pusty.")
 
 def compress_image(src, dst):
     with Image.open(src) as img:
@@ -121,12 +125,11 @@ def compress_image(src, dst):
 def create_small_archive(root, meta, log):
     if not PIL_AVAILABLE:
         log("\n⚠  Pillow niedostępne – pomijam Małe Archiwum.")
-        log("   Zainstaluj:  pip install Pillow")
         return
     small_root = root.parent / (root.name + "_E")
     if small_root.exists():
         shutil.rmtree(small_root)
-    log(f"\n━━━  MAŁE ARCHIWUM  →  {small_root.name}  ━━━━━━━━━━━━━━━━━━━━━━━━")
+    log(f"\n━━  MAŁE ARCHIWUM  →  {small_root.name}  ━━━━━━━━━━━━━━━━━━━━━━━━")
     for cat in ["Projektowe", "Plastyczne", "Inne"]:
         (small_root / cat).mkdir(parents=True, exist_ok=True)
     for cat_label, workshop_code, project_dir, project_name in iter_projects(root, meta):
@@ -144,36 +147,36 @@ def create_small_archive(root, meta, log):
                     small_kb = dst_jpg.stat().st_size  // 1024
                     log(f"    ✓  {file_path.name}  ({orig_kb} KB → {small_kb} KB)")
                 except Exception as e:
-                    log(f"    ❌  {file_path.name}  – błąd: {e}")
+                    log(f"    ✗  {file_path.name}  – błąd: {e}")
             elif file_path.suffix.lower() == ".txt":
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(file_path, dst)
                 log(f"    –  {file_path.name}  (INF skopiowany)")
             else:
-                log(f"    ○  {file_path.name}  (pominięto – dodaj klatki/slajdy ręcznie do _E)")
-    log(f"\n  ✅  Małe Archiwum gotowe: {small_root.name}")
+                log(f"    ○  {file_path.name}  (pominięto – dodaj klatki/slajdy ręcznie)")
+    log(f"\n  ✓  Małe Archiwum gotowe: {small_root.name}")
 
 def run_archive(root, log):
     if root.name.endswith("_E"):
-        log("❌  To jest folder Małego Archiwum. Wybierz Duże Archiwum (bez _E).")
+        log("✗  To jest folder Małego Archiwum. Wybierz Duże Archiwum (bez _E).")
         return
     meta = parse_root_name(root.name)
     log(f"Folder: {root.name}")
     log(f"Student: {meta['surname_initial']}  |  rok {meta['year']}  |  semestr {meta['semester']}\n")
     process_large_archive(root, meta, log)
     create_small_archive(root, meta, log)
-    log("\n✅  Gotowe! Nie zapomnij:")
+    log("\n✓  Gotowe! Nie zapomnij:")
     log("   1. Sprawdzić i uzupełnić pliki _INF.txt")
-    log("   2. Ręcznie dodać klatki/slajdy z filmów i prezentacji do _E")
+    log("   2. Ręcznie dodać klatki z filmów / slajdy z prezentacji do _E")
     log("   3. Dołączyć oświadczenie o autorstwie")
-    log("   4. Wysłać maila na dokumentacja.wwp@asp.waw.pl po link do Google Drive")
+    log("   4. Wysłać maila na dokumentacja.wwp@asp.waw.pl po link do Drive")
 
 # ── GUI ────────────────────────────────────────────────────────────────────────
 
 class ArchiveApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("ASP Archiwum – Krok 2: Archiwizacja")
+        self.title("ASP Archiwum – Krok 2")
         self.configure(bg=BG)
         self.resizable(True, True)
         self._selected_path = tk.StringVar(value="")
@@ -182,84 +185,135 @@ class ArchiveApp(tk.Tk):
 
     def _center(self):
         self.update_idletasks()
-        w, h = 700, 620
+        w, h = 720, 680
         sw = self.winfo_screenwidth()
         sh = self.winfo_screenheight()
         self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
     def _build_ui(self):
-        # ── Header ────────────────────────────────────────────────────────────
-        header = tk.Frame(self, bg=BG, pady=20)
-        header.pack(fill="x", padx=32)
-        tk.Label(header, text="ASP Warszawa", font=FONT_TITLE,
-                 fg=ACCENT2, bg=BG).pack(anchor="w")
-        tk.Label(header, text="Krok 2 z 2  ·  Archiwizacja i kompresja",
-                 font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(2, 0))
+        # ── Top bar ───────────────────────────────────────────────────────────
+        topbar = tk.Frame(self, bg=BG_DARK, height=56)
+        topbar.pack(fill="x")
+        topbar.pack_propagate(False)
 
-        tk.Frame(self, bg=BG_INPUT, height=1).pack(fill="x", padx=32)
+        tk.Label(topbar, text=" KROK 2 ", font=FONT_LABEL,
+                 bg=GREEN, fg=BG_DARK, padx=6, pady=3).pack(side="left", padx=20, pady=14)
+        tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
+                 font=FONT_SUB, fg="#aaaaaa", bg=BG_DARK).pack(side="left", padx=4)
+
+        # ── Pillow status w topbarze ───────────────────────────────────────────
+        pil_text  = "● Pillow OK" if PIL_AVAILABLE else "● Pillow BRAK  →  pip install Pillow"
+        pil_color = GREEN if PIL_AVAILABLE else "#ff5252"
+        tk.Label(topbar, text=pil_text, font=FONT_LABEL,
+                 fg=pil_color, bg=BG_DARK).pack(side="right", padx=20)
+
+        # ── Tytuł z zielonym paskiem ──────────────────────────────────────────
+        title_frame = tk.Frame(self, bg=BG)
+        title_frame.pack(fill="x")
+
+        tk.Frame(title_frame, bg=GREEN, width=8).pack(side="left", fill="y")
+
+        title_inner = tk.Frame(title_frame, bg=BG, padx=24, pady=20)
+        title_inner.pack(side="left", fill="x", expand=True)
+
+        tk.Label(title_inner, text="Archiwizacja\ni kompresja",
+                 font=FONT_TITLE, fg=TEXT, bg=BG,
+                 justify="left").pack(anchor="w")
+        tk.Label(title_inner,
+                 text="Uruchom po uzupełnieniu _INF.txt i wrzuceniu plików do podfolderów.",
+                 font=FONT_SUB, fg=TEXT_DIM, bg=BG, justify="left").pack(anchor="w", pady=(4, 0))
+
+        tk.Frame(self, bg=BORDER, height=2).pack(fill="x")
 
         # ── Wybór folderu ─────────────────────────────────────────────────────
-        pick_frame = tk.Frame(self, bg=BG, pady=16)
-        pick_frame.pack(fill="x", padx=32)
-        tk.Label(pick_frame, text="Folder główny archiwum (np. SuchyW_2026_SM1):",
-                 font=FONT_UI, fg=TEXT, bg=BG).pack(anchor="w")
-        row = tk.Frame(pick_frame, bg=BG, pady=6)
-        row.pack(fill="x")
+        section = tk.Frame(self, bg=BG, padx=32, pady=20)
+        section.pack(fill="x")
+
+        tk.Label(section, text="FOLDER GŁÓWNY ARCHIWUM",
+                 font=FONT_LABEL, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(0, 6))
+
+        pick_row = tk.Frame(section, bg=BG)
+        pick_row.pack(fill="x")
+
+        path_box = tk.Frame(pick_row, bg=BG, highlightbackground=BORDER, highlightthickness=2)
+        path_box.pack(side="left", fill="x", expand=True)
+
         self._path_label = tk.Label(
-            row, textvariable=self._selected_path,
-            font=FONT_MONO, fg=TEXT_DIM, bg=BG_INPUT,
-            anchor="w", padx=12, pady=8, relief="flat"
+            path_box, textvariable=self._selected_path,
+            font=FONT_MONO, fg=TEXT_DIM, bg=BG,
+            anchor="w", padx=12, pady=10
         )
-        self._path_label.pack(side="left", fill="x", expand=True, ipady=2)
+        self._path_label.pack(fill="x")
+
         tk.Button(
-            row, text="Wybierz…", font=FONT_UI,
-            bg=BG_INPUT, fg=TEXT, activebackground=BG_CARD, activeforeground=ACCENT2,
-            relief="flat", padx=16, cursor="hand2",
+            pick_row, text="Wybierz…",
+            font=FONT_UI, bg=BG_DARK, fg=TEXT_INV,
+            activebackground="#333333", activeforeground=TEXT_INV,
+            relief="flat", padx=18, pady=10, cursor="hand2", bd=0,
             command=self._pick_folder
         ).pack(side="left", padx=(8, 0))
 
         # ── Checklist ─────────────────────────────────────────────────────────
-        info = tk.Frame(self, bg=BG_CARD, padx=16, pady=12)
-        info.pack(fill="x", padx=32)
-        tk.Label(info, text="Przed uruchomieniem upewnij się że:",
-                 font=("Helvetica Neue", 11, "bold"), fg=TEXT, bg=BG_CARD).pack(anchor="w", pady=(0, 4))
+        tk.Frame(self, bg="#eeeeee", height=1).pack(fill="x", padx=32)
+
+        checks_frame = tk.Frame(self, bg=BG, padx=32, pady=14)
+        checks_frame.pack(fill="x")
+
+        tk.Label(checks_frame, text="PRZED URUCHOMIENIEM",
+                 font=FONT_LABEL, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(0, 6))
+
         checks = [
-            "✓  Uruchomiłeś/aś już  1_ASP_Setup  i uzupełniłeś/aś pliki _INF.txt",
-            "✓  Pliki są w podfolderach (zdjecia / plansze / film / rendering / szkicownik)",
-            "✓  Folder główny NIE ma na końcu  _E",
+            "✓   Uruchomiłeś/aś  1_ASP_Setup  i uzupełniłeś/aś pliki _INF.txt",
+            "✓   Pliki są w podfolderach:  zdjecia / plansze / film / rendering / szkicownik",
+            "✓   Folder główny NIE kończy się na  _E",
         ]
         for c in checks:
-            tk.Label(info, text=c, font=FONT_SUB, fg=TEXT_DIM,
-                     bg=BG_CARD, anchor="w").pack(anchor="w", pady=1)
+            row = tk.Frame(checks_frame, bg=BG, pady=2)
+            row.pack(fill="x")
+            tk.Label(row, text=" ✓ ", font=FONT_LABEL,
+                     bg=GREEN, fg=BG_DARK, padx=4, pady=2).pack(side="left")
+            tk.Label(row, text=f"  {c[4:]}", font=FONT_SUB,
+                     fg=TEXT, bg=BG).pack(side="left")
 
-        # ── Pillow status ──────────────────────────────────────────────────────
-        pil_color = ACCENT if PIL_AVAILABLE else "#e05555"
-        pil_text  = "● Pillow zainstalowane" if PIL_AVAILABLE else "● Pillow NIE jest zainstalowane  →  pip install Pillow"
-        tk.Label(self, text=pil_text, font=FONT_SUB, fg=pil_color,
-                 bg=BG).pack(anchor="w", padx=32, pady=(10, 0))
+        # ── Przycisk ──────────────────────────────────────────────────────────
+        tk.Frame(self, bg="#eeeeee", height=1).pack(fill="x", padx=32)
 
-        # ── Przycisk (nad logiem – zawsze widoczny) ───────────────────────────
-        btn_frame = tk.Frame(self, bg=BG, pady=14)
-        btn_frame.pack(fill="x", padx=32)
+        btn_frame = tk.Frame(self, bg=BG, padx=32, pady=16)
+        btn_frame.pack(fill="x")
+
         self._run_btn = tk.Button(
             btn_frame, text="▶   Uruchom Archiwizację",
-            font=("Helvetica Neue", 14, "bold"),
-            bg=ACCENT2, fg=BG, activebackground=ACCENT2_DIM, activeforeground=BG,
-            relief="flat", padx=24, pady=10, cursor="hand2",
+            font=("Helvetica Neue", 14, "bold") if sys.platform == "darwin" else ("Arial", 12, "bold"),
+            bg=GREEN, fg=BG_DARK,
+            activebackground=GREEN_DARK, activeforeground=BG_DARK,
+            relief="flat", padx=28, pady=12, cursor="hand2", bd=0,
             command=self._run
         )
         self._run_btn.pack(side="right")
 
-        # ── Log (na dole, rozciąga się) ───────────────────────────────────────
-        tk.Label(self, text="Log:", font=FONT_SUB, fg=TEXT_DIM,
+        # ── Log ───────────────────────────────────────────────────────────────
+        tk.Label(self, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
                  bg=BG).pack(anchor="w", padx=32)
+
+        log_frame = tk.Frame(self, bg=BG, padx=32, pady=(4, 24))
+        log_frame.pack(fill="both", expand=True)
+
         self._log_box = scrolledtext.ScrolledText(
-            self, font=FONT_MONO, bg=BG_CARD, fg=TEXT_LOG,
+            log_frame, font=FONT_MONO, bg=BG_LOG, fg=TEXT_LOG,
             relief="flat", padx=12, pady=10,
-            insertbackground=ACCENT2, state="disabled",
-            wrap="word"
+            insertbackground=GREEN, state="disabled",
+            wrap="word",
+            highlightbackground=BORDER, highlightthickness=1
         )
-        self._log_box.pack(fill="both", expand=True, padx=32, pady=(4, 20))
+        self._log_box.pack(fill="both", expand=True)
+        # ── Stopka ────────────────────────────────────────────────────────────
+        tk.Label(
+            self, 
+            text="autor: Wiktor Suchy", 
+            font=FONT_SUB, 
+            fg=TEXT_DIM, 
+            bg=BG
+        ).place(relx=1.0, rely=1.0, anchor="se", x=-16, y=-8)
 
     def _pick_folder(self):
         path = filedialog.askdirectory(title="Wybierz folder główny archiwum")
@@ -285,7 +339,7 @@ class ArchiveApp(tk.Tk):
             return
         root = Path(path_str)
         if not root.is_dir():
-            self._log("❌  Wybrany folder nie istnieje.")
+            self._log("✗  Wybrany folder nie istnieje.")
             return
         self._clear_log()
         self._run_btn.config(state="disabled", text="⏳  Trwa archiwizacja…")

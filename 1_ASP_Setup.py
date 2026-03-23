@@ -8,18 +8,25 @@ import tkinter as tk
 from tkinter import filedialog, scrolledtext
 from pathlib import Path
 
-BG         = "#1a1a1a"
-BG_CARD    = "#242424"
-BG_INPUT   = "#2e2e2e"
-ACCENT     = "#00c896"
-ACCENT_DIM = "#008f6a"
-TEXT       = "#f0f0f0"
-TEXT_DIM   = "#888888"
-TEXT_LOG   = "#d4d4d4"
-FONT_UI    = ("Helvetica Neue", 13)
-FONT_MONO  = ("Menlo", 11) if sys.platform == "darwin" else ("Consolas", 10)
-FONT_TITLE = ("Helvetica Neue", 22, "bold")
-FONT_SUB   = ("Helvetica Neue", 11)
+# ── Paleta – biała z neonową zielenią jak w instrukcji ASP ────────────────────
+BG          = "#ffffff"
+BG_DARK     = "#111111"
+GREEN       = "#00e676"        # neonowa zieleń z dokumentu
+GREEN_DARK  = "#00b85c"
+BORDER      = "#111111"
+TEXT        = "#111111"
+TEXT_INV    = "#ffffff"
+TEXT_DIM    = "#666666"
+TEXT_LOG    = "#111111"
+BG_LOG      = "#f5f5f5"
+BG_TAG      = GREEN
+
+FONT_TITLE  = ("Helvetica Neue", 28, "bold") if sys.platform == "darwin" else ("Arial", 22, "bold")
+FONT_STEP   = ("Helvetica Neue", 20, "bold") if sys.platform == "darwin" else ("Arial", 16, "bold")
+FONT_UI     = ("Helvetica Neue", 13)         if sys.platform == "darwin" else ("Arial", 12)
+FONT_MONO   = ("Menlo", 10)                  if sys.platform == "darwin" else ("Consolas", 10)
+FONT_SUB    = ("Helvetica Neue", 11)         if sys.platform == "darwin" else ("Arial", 10)
+FONT_LABEL  = ("Helvetica Neue", 10, "bold") if sys.platform == "darwin" else ("Arial", 9, "bold")
 
 # ── Logika ─────────────────────────────────────────────────────────────────────
 
@@ -71,15 +78,15 @@ def run_setup(root, log):
             continue
         if cat_dir.name.lower() not in CATEGORIES:
             continue
-        log(f"📂  {cat_dir.name}")
+        log(f"▸  {cat_dir.name}")
         found_any = True
         for workshop_dir in sorted(cat_dir.iterdir()):
             if not workshop_dir.is_dir() or workshop_dir.name.startswith("."):
                 continue
-            log(f"    ↳  {workshop_dir.name}")
+            log(f"   ↳  {workshop_dir.name}")
             for sub in SUBFOLDERS:
                 (workshop_dir / sub).mkdir(exist_ok=True)
-            log(f"       ✓  podfoldery: {', '.join(SUBFOLDERS)}")
+            log(f"      ✓  {', '.join(SUBFOLDERS)}")
             w_code   = extract_workshop_code(workshop_dir.name, meta)
             proj     = short_project_name(workshop_dir.name, meta, w_code)
             inf_name = (f"{meta['surname_initial']}_{w_code}_{meta['year']}_"
@@ -87,15 +94,15 @@ def run_setup(root, log):
             inf_path = workshop_dir / inf_name
             if not inf_path.exists():
                 create_inf_template(inf_path, meta, w_code, proj)
-                log(f"       ✓  {inf_name}")
+                log(f"      ✓  {inf_name}")
             else:
-                log(f"       –  {inf_name}  (już istnieje)")
+                log(f"      –  {inf_name}  (już istnieje)")
     if not found_any:
-        log("❌  Nie znaleziono podfolderów Projektowe / Plastyczne / Inne.")
-        log("    Upewnij się że wybrałeś właściwy folder główny.")
+        log("✗  Nie znaleziono podfolderów Projektowe / Plastyczne / Inne.")
+        log("   Upewnij się że wybrałeś właściwy folder główny.")
         return False
-    log("\n✅  Gotowe! Możesz teraz wrzucać pliki do podfolderów.")
-    log("    Następnie uzupełnij _INF.txt i uruchom  2_ASP_Archiwum.")
+    log("\n✓  Gotowe! Możesz teraz wrzucać pliki do podfolderów.")
+    log("   Następnie uzupełnij _INF.txt i uruchom  2_ASP_Archiwum.")
     return True
 
 # ── GUI ────────────────────────────────────────────────────────────────────────
@@ -103,7 +110,7 @@ def run_setup(root, log):
 class SetupApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("ASP Archiwum – Krok 1: Setup")
+        self.title("ASP Archiwum – Krok 1")
         self.configure(bg=BG)
         self.resizable(True, True)
         self._selected_path = tk.StringVar(value="")
@@ -112,78 +119,135 @@ class SetupApp(tk.Tk):
 
     def _center(self):
         self.update_idletasks()
-        w, h = 700, 600
+        w, h = 720, 640
         sw = self.winfo_screenwidth()
         sh = self.winfo_screenheight()
         self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
     def _build_ui(self):
-        # ── Header ────────────────────────────────────────────────────────────
-        header = tk.Frame(self, bg=BG, pady=20)
-        header.pack(fill="x", padx=32)
-        tk.Label(header, text="ASP Warszawa", font=FONT_TITLE,
-                 fg=ACCENT, bg=BG).pack(anchor="w")
-        tk.Label(header, text="Krok 1 z 2  ·  Przygotowanie struktury folderów",
-                 font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(2, 0))
+        # ── Top bar – czarna belka z zielonym tagiem ──────────────────────────
+        topbar = tk.Frame(self, bg=BG_DARK, height=56)
+        topbar.pack(fill="x")
+        topbar.pack_propagate(False)
 
-        tk.Frame(self, bg=BG_INPUT, height=1).pack(fill="x", padx=32)
+        tag = tk.Label(topbar, text=" KROK 1 ", font=FONT_LABEL,
+                       bg=GREEN, fg=BG_DARK, padx=6, pady=3)
+        tag.pack(side="left", padx=20, pady=14)
 
-        # ── Wybór folderu ─────────────────────────────────────────────────────
-        pick_frame = tk.Frame(self, bg=BG, pady=16)
-        pick_frame.pack(fill="x", padx=32)
-        tk.Label(pick_frame, text="Folder główny archiwum (np. SuchyW_2026_SM1):",
-                 font=FONT_UI, fg=TEXT, bg=BG).pack(anchor="w")
-        row = tk.Frame(pick_frame, bg=BG, pady=6)
-        row.pack(fill="x")
+        tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
+                 font=FONT_SUB, fg="#aaaaaa", bg=BG_DARK).pack(side="left", padx=4)
+
+        # ── Główny tytuł ──────────────────────────────────────────────────────
+        title_frame = tk.Frame(self, bg=BG, pady=0)
+        title_frame.pack(fill="x")
+
+        # Zielony pasek po lewej jak w dokumencie
+        accent_bar = tk.Frame(title_frame, bg=GREEN, width=8)
+        accent_bar.pack(side="left", fill="y")
+
+        title_inner = tk.Frame(title_frame, bg=BG, padx=24, pady=20)
+        title_inner.pack(side="left", fill="x", expand=True)
+
+        tk.Label(title_inner, text="Setup struktury\nfolderów",
+                 font=FONT_TITLE, fg=TEXT, bg=BG,
+                 justify="left").pack(anchor="w")
+        tk.Label(title_inner, text="Uruchom po ręcznym stworzeniu głównego folderu i podfolderów pracowni.",
+                 font=FONT_SUB, fg=TEXT_DIM, bg=BG, justify="left").pack(anchor="w", pady=(4, 0))
+
+        # ── Separator ─────────────────────────────────────────────────────────
+        tk.Frame(self, bg=BORDER, height=2).pack(fill="x")
+
+        # ── Sekcja: wybór folderu ─────────────────────────────────────────────
+        section = tk.Frame(self, bg=BG, padx=32, pady=20)
+        section.pack(fill="x")
+
+        tk.Label(section, text="FOLDER GŁÓWNY ARCHIWUM",
+                 font=FONT_LABEL, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(0, 6))
+
+        pick_row = tk.Frame(section, bg=BG)
+        pick_row.pack(fill="x")
+
+        path_box = tk.Frame(pick_row, bg=BG, highlightbackground=BORDER,
+                            highlightthickness=2)
+        path_box.pack(side="left", fill="x", expand=True)
+
         self._path_label = tk.Label(
-            row, textvariable=self._selected_path,
-            font=FONT_MONO, fg=TEXT_DIM, bg=BG_INPUT,
-            anchor="w", padx=12, pady=8, relief="flat"
+            path_box, textvariable=self._selected_path,
+            font=FONT_MONO, fg=TEXT_DIM, bg=BG,
+            anchor="w", padx=12, pady=10
         )
-        self._path_label.pack(side="left", fill="x", expand=True, ipady=2)
+        self._path_label.pack(fill="x")
+
         tk.Button(
-            row, text="Wybierz…", font=FONT_UI,
-            bg=BG_INPUT, fg=TEXT, activebackground=BG_CARD, activeforeground=ACCENT,
-            relief="flat", padx=16, cursor="hand2",
-            command=self._pick_folder
+            pick_row, text="Wybierz…",
+            font=FONT_UI, bg=BG_DARK, fg=TEXT_INV,
+            activebackground="#333333", activeforeground=TEXT_INV,
+            relief="flat", padx=18, pady=10, cursor="hand2",
+            bd=0, command=self._pick_folder
         ).pack(side="left", padx=(8, 0))
 
-        # ── Instrukcja ────────────────────────────────────────────────────────
-        info = tk.Frame(self, bg=BG_CARD, padx=16, pady=12)
-        info.pack(fill="x", padx=32)
-        steps = [
-            "1.  Utwórz folder  NazwiskoI_RRRR_SEM  (np. SuchyW_2026_SM1)",
-            "2.  W środku utwórz podfoldery:  Projektowe  /  Plastyczne  /  Inne",
-            "3.  W każdej kategorii utwórz foldery pracowni  (np. SuchyW_JK_2026_SM1)",
-            "4.  Wybierz folder główny (NazwiskoI_RRRR_SEM) powyżej i kliknij  Uruchom Setup",
-        ]
-        for s in steps:
-            tk.Label(info, text=s, font=FONT_SUB, fg=TEXT_DIM,
-                     bg=BG_CARD, anchor="w").pack(anchor="w", pady=1)
+        # ── Sekcja: instrukcja w zielonych ramkach jak w PDF ──────────────────
+        tk.Frame(self, bg="#eeeeee", height=1).pack(fill="x", padx=32)
 
-        # ── Przycisk (nad logiem – zawsze widoczny) ───────────────────────────
-        btn_frame = tk.Frame(self, bg=BG, pady=14)
-        btn_frame.pack(fill="x", padx=32)
+        steps_frame = tk.Frame(self, bg=BG, padx=32, pady=16)
+        steps_frame.pack(fill="x")
+
+        tk.Label(steps_frame, text="KOLEJNOŚĆ KROKÓW",
+                 font=FONT_LABEL, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(0, 8))
+
+        steps = [
+            ("1", "Utwórz folder  NazwiskoI_RRRR_SEM  (np. SuchyW_2026_SM1)"),
+            ("2", "W środku utwórz podfoldery:  Projektowe  /  Plastyczne  /  Inne"),
+            ("3", "W każdej kategorii utwórz foldery pracowni  (np. SuchyW_JK_2026_SM1)"),
+            ("4", "Wybierz folder główny (NazwiskoI_RRRR_SEM) powyżej i kliknij  Uruchom Setup"),
+        ]
+        for num, text in steps:
+            row = tk.Frame(steps_frame, bg=BG, pady=3)
+            row.pack(fill="x")
+            tk.Label(row, text=f" {num} ", font=FONT_LABEL,
+                     bg=GREEN, fg=BG_DARK, padx=6, pady=3).pack(side="left")
+            tk.Label(row, text=f"  {text}", font=FONT_SUB,
+                     fg=TEXT, bg=BG, anchor="w").pack(side="left")
+
+        # ── Przycisk ──────────────────────────────────────────────────────────
+        tk.Frame(self, bg="#eeeeee", height=1).pack(fill="x", padx=32)
+
+        btn_frame = tk.Frame(self, bg=BG, padx=32, pady=16)
+        btn_frame.pack(fill="x")
+
         self._run_btn = tk.Button(
             btn_frame, text="▶   Uruchom Setup",
-            font=("Helvetica Neue", 14, "bold"),
-            bg=ACCENT, fg=BG, activebackground=ACCENT_DIM, activeforeground=BG,
-            relief="flat", padx=24, pady=10, cursor="hand2",
+            font=("Helvetica Neue", 14, "bold") if sys.platform == "darwin" else ("Arial", 12, "bold"),
+            bg=GREEN, fg=BG_DARK,
+            activebackground=GREEN_DARK, activeforeground=BG_DARK,
+            relief="flat", padx=28, pady=12, cursor="hand2", bd=0,
             command=self._run
         )
         self._run_btn.pack(side="right")
 
-        # ── Log (na dole, rozciąga się) ───────────────────────────────────────
-        tk.Label(self, text="Log:", font=FONT_SUB, fg=TEXT_DIM,
+        # ── Log ───────────────────────────────────────────────────────────────
+        tk.Label(self, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
                  bg=BG).pack(anchor="w", padx=32)
-        self._log_box = scrolledtext.ScrolledText(
-            self, font=FONT_MONO, bg=BG_CARD, fg=TEXT_LOG,
-            relief="flat", padx=12, pady=10,
-            insertbackground=ACCENT, state="disabled",
-            wrap="word"
-        )
-        self._log_box.pack(fill="both", expand=True, padx=32, pady=(4, 20))
 
+        log_frame = tk.Frame(self, bg=BG, padx=32, pady=(4, 24))
+        log_frame.pack(fill="both", expand=True)
+
+        self._log_box = scrolledtext.ScrolledText(
+            log_frame, font=FONT_MONO, bg=BG_LOG, fg=TEXT_LOG,
+            relief="flat", padx=12, pady=10,
+            insertbackground=GREEN, state="disabled",
+            wrap="word",
+            highlightbackground=BORDER, highlightthickness=1
+        )
+        self._log_box.pack(fill="both", expand=True)
+        # ── Stopka ────────────────────────────────────────────────────────────
+        tk.Label(
+            self, 
+            text="autor: Wiktor Suchy", 
+            font=FONT_SUB, 
+            fg=TEXT_DIM, 
+            bg=BG
+        ).place(relx=1.0, rely=1.0, anchor="se", x=-16, y=-8)
     def _pick_folder(self):
         path = filedialog.askdirectory(title="Wybierz folder główny archiwum")
         if path:
@@ -208,7 +272,7 @@ class SetupApp(tk.Tk):
             return
         root = Path(path_str)
         if not root.is_dir():
-            self._log("❌  Wybrany folder nie istnieje.")
+            self._log("✗  Wybrany folder nie istnieje.")
             return
         self._clear_log()
         self._run_btn.config(state="disabled", text="⏳  Trwa setup…")
