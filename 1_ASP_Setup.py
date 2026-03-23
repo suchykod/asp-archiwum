@@ -27,6 +27,7 @@ FONT_UI     = ("Helvetica Neue", 13)         if sys.platform == "darwin" else ("
 FONT_MONO   = ("Menlo", 10)                  if sys.platform == "darwin" else ("Consolas", 10)
 FONT_SUB    = ("Helvetica Neue", 11)         if sys.platform == "darwin" else ("Arial", 10)
 FONT_LABEL  = ("Helvetica Neue", 10, "bold") if sys.platform == "darwin" else ("Arial", 9, "bold")
+FONT_FOOTER = ("Helvetica Neue", 9)          if sys.platform == "darwin" else ("Arial", 8)
 
 # ── Logika ─────────────────────────────────────────────────────────────────────
 
@@ -125,8 +126,8 @@ class SetupApp(tk.Tk):
         self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
     def _build_ui(self):
-        # ── Top bar – czarna belka z zielonym tagiem ──────────────────────────
-        topbar = tk.Frame(self, bg=BG_DARK, height=56)
+        # ── Top bar – zamieniony na biały ─────────────────────────────────────
+        topbar = tk.Frame(self, bg=BG, height=56)
         topbar.pack(fill="x")
         topbar.pack_propagate(False)
 
@@ -135,13 +136,12 @@ class SetupApp(tk.Tk):
         tag.pack(side="left", padx=20, pady=14)
 
         tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
-                 font=FONT_SUB, fg="#aaaaaa", bg=BG_DARK).pack(side="left", padx=4)
+                 font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(side="left", padx=4)
 
         # ── Główny tytuł ──────────────────────────────────────────────────────
         title_frame = tk.Frame(self, bg=BG, pady=0)
         title_frame.pack(fill="x")
 
-        # Zielony pasek po lewej jak w dokumencie
         accent_bar = tk.Frame(title_frame, bg=GREEN, width=8)
         accent_bar.pack(side="left", fill="y")
 
@@ -154,7 +154,6 @@ class SetupApp(tk.Tk):
         tk.Label(title_inner, text="Uruchom po ręcznym stworzeniu głównego folderu i podfolderów pracowni.",
                  font=FONT_SUB, fg=TEXT_DIM, bg=BG, justify="left").pack(anchor="w", pady=(4, 0))
 
-        # ── Separator ─────────────────────────────────────────────────────────
         tk.Frame(self, bg=BORDER, height=2).pack(fill="x")
 
         # ── Sekcja: wybór folderu ─────────────────────────────────────────────
@@ -180,8 +179,8 @@ class SetupApp(tk.Tk):
 
         tk.Button(
             pick_row, text="Wybierz…",
-            font=FONT_UI, bg=BG_DARK, fg=TEXT_INV,
-            activebackground="#333333", activeforeground=TEXT_INV,
+            font=FONT_UI, bg="#eeeeee", fg=TEXT,
+            activebackground="#dddddd", activeforeground=TEXT,
             relief="flat", padx=18, pady=10, cursor="hand2",
             bd=0, command=self._pick_folder
         ).pack(side="left", padx=(8, 0))
@@ -229,7 +228,6 @@ class SetupApp(tk.Tk):
         tk.Label(self, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
                  bg=BG).pack(anchor="w", padx=32)
 
-        # POPRAWKA BŁĘDU (usunięto pady z konstruktora i dodano do pack())
         log_frame = tk.Frame(self, bg=BG, padx=32)
         log_frame.pack(fill="both", expand=True, pady=(4, 24))
 
@@ -246,10 +244,10 @@ class SetupApp(tk.Tk):
         tk.Label(
             self, 
             text="autor: Wiktor Suchy", 
-            font=FONT_SUB, 
-            fg=TEXT_DIM, 
+            font=FONT_FOOTER, 
+            fg="#999999", 
             bg=BG
-        ).place(relx=1.0, rely=1.0, anchor="se", x=-16, y=-8)
+        ).place(relx=1.0, rely=1.0, anchor="se", x=-6, y=-4)
 
     def _pick_folder(self):
         path = filedialog.askdirectory(title="Wybierz folder główny archiwum")

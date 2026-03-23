@@ -32,6 +32,7 @@ FONT_UI     = ("Helvetica Neue", 13)         if sys.platform == "darwin" else ("
 FONT_MONO   = ("Menlo", 10)                  if sys.platform == "darwin" else ("Consolas", 10)
 FONT_SUB    = ("Helvetica Neue", 11)         if sys.platform == "darwin" else ("Arial", 10)
 FONT_LABEL  = ("Helvetica Neue", 10, "bold") if sys.platform == "darwin" else ("Arial", 9, "bold")
+FONT_FOOTER = ("Helvetica Neue", 9)          if sys.platform == "darwin" else ("Arial", 8)
 
 IMAGE_EXTENSIONS   = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".gif", ".webp"}
 CATEGORY_FOLDERS   = {"projektowe", "plastyczne", "inne"}
@@ -191,21 +192,21 @@ class ArchiveApp(tk.Tk):
         self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
     def _build_ui(self):
-        # ── Top bar ───────────────────────────────────────────────────────────
-        topbar = tk.Frame(self, bg=BG_DARK, height=56)
+        # ── Top bar – zamieniony na biały ─────────────────────────────────────
+        topbar = tk.Frame(self, bg=BG, height=56)
         topbar.pack(fill="x")
         topbar.pack_propagate(False)
 
         tk.Label(topbar, text=" KROK 2 ", font=FONT_LABEL,
                  bg=GREEN, fg=BG_DARK, padx=6, pady=3).pack(side="left", padx=20, pady=14)
         tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
-                 font=FONT_SUB, fg="#aaaaaa", bg=BG_DARK).pack(side="left", padx=4)
+                 font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(side="left", padx=4)
 
         # ── Pillow status w topbarze ───────────────────────────────────────────
         pil_text  = "● Pillow OK" if PIL_AVAILABLE else "● Pillow BRAK  →  pip install Pillow"
         pil_color = GREEN if PIL_AVAILABLE else "#ff5252"
         tk.Label(topbar, text=pil_text, font=FONT_LABEL,
-                 fg=pil_color, bg=BG_DARK).pack(side="right", padx=20)
+                 fg=pil_color, bg=BG).pack(side="right", padx=20)
 
         # ── Tytuł z zielonym paskiem ──────────────────────────────────────────
         title_frame = tk.Frame(self, bg=BG)
@@ -247,8 +248,8 @@ class ArchiveApp(tk.Tk):
 
         tk.Button(
             pick_row, text="Wybierz…",
-            font=FONT_UI, bg=BG_DARK, fg=TEXT_INV,
-            activebackground="#333333", activeforeground=TEXT_INV,
+            font=FONT_UI, bg="#eeeeee", fg=TEXT,
+            activebackground="#dddddd", activeforeground=TEXT,
             relief="flat", padx=18, pady=10, cursor="hand2", bd=0,
             command=self._pick_folder
         ).pack(side="left", padx=(8, 0))
@@ -295,7 +296,6 @@ class ArchiveApp(tk.Tk):
         tk.Label(self, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
                  bg=BG).pack(anchor="w", padx=32)
 
-        # POPRAWKA: Usunięto pady stąd, a dodano je poniżej do pack()
         log_frame = tk.Frame(self, bg=BG, padx=32)
         log_frame.pack(fill="both", expand=True, pady=(4, 24))
 
@@ -312,10 +312,10 @@ class ArchiveApp(tk.Tk):
         tk.Label(
             self, 
             text="autor: Wiktor Suchy", 
-            font=FONT_SUB, 
-            fg=TEXT_DIM, 
+            font=FONT_FOOTER, 
+            fg="#999999", 
             bg=BG
-        ).place(relx=1.0, rely=1.0, anchor="se", x=-16, y=-8)
+        ).place(relx=1.0, rely=1.0, anchor="se", x=-6, y=-4)
 
     def _pick_folder(self):
         path = filedialog.askdirectory(title="Wybierz folder główny archiwum")
