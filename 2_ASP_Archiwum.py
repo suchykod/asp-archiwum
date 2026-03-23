@@ -295,8 +295,9 @@ class ArchiveApp(tk.Tk):
         tk.Label(self, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
                  bg=BG).pack(anchor="w", padx=32)
 
-        log_frame = tk.Frame(self, bg=BG, padx=32, pady=(4, 24))
-        log_frame.pack(fill="both", expand=True)
+        # POPRAWKA: Usunięto pady stąd, a dodano je poniżej do pack()
+        log_frame = tk.Frame(self, bg=BG, padx=32)
+        log_frame.pack(fill="both", expand=True, pady=(4, 24))
 
         self._log_box = scrolledtext.ScrolledText(
             log_frame, font=FONT_MONO, bg=BG_LOG, fg=TEXT_LOG,
@@ -306,6 +307,7 @@ class ArchiveApp(tk.Tk):
             highlightbackground=BORDER, highlightthickness=1
         )
         self._log_box.pack(fill="both", expand=True)
+
         # ── Stopka ────────────────────────────────────────────────────────────
         tk.Label(
             self, 

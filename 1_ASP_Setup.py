@@ -229,8 +229,9 @@ class SetupApp(tk.Tk):
         tk.Label(self, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
                  bg=BG).pack(anchor="w", padx=32)
 
-        log_frame = tk.Frame(self, bg=BG, padx=32, pady=(4, 24))
-        log_frame.pack(fill="both", expand=True)
+        # POPRAWKA BŁĘDU (usunięto pady z konstruktora i dodano do pack())
+        log_frame = tk.Frame(self, bg=BG, padx=32)
+        log_frame.pack(fill="both", expand=True, pady=(4, 24))
 
         self._log_box = scrolledtext.ScrolledText(
             log_frame, font=FONT_MONO, bg=BG_LOG, fg=TEXT_LOG,
@@ -240,6 +241,7 @@ class SetupApp(tk.Tk):
             highlightbackground=BORDER, highlightthickness=1
         )
         self._log_box.pack(fill="both", expand=True)
+
         # ── Stopka ────────────────────────────────────────────────────────────
         tk.Label(
             self, 
@@ -248,6 +250,7 @@ class SetupApp(tk.Tk):
             fg=TEXT_DIM, 
             bg=BG
         ).place(relx=1.0, rely=1.0, anchor="se", x=-16, y=-8)
+
     def _pick_folder(self):
         path = filedialog.askdirectory(title="Wybierz folder główny archiwum")
         if path:
