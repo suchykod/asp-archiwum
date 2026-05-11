@@ -17,10 +17,16 @@ except ImportError:
     PIL_AVAILABLE = False
 
 try:
-    import fitz  # type: ignore
+    import fitz  # type: ignore  (PyMuPDF)
     FITZ_AVAILABLE = True
 except ImportError:
     FITZ_AVAILABLE = False
+
+try:
+    from pdf2image import convert_from_path  # type: ignore
+    PDF2IMAGE_AVAILABLE = True
+except ImportError:
+    PDF2IMAGE_AVAILABLE = False
 
 # ── Paleta – jak instrukcja ASP: biała + neonowa zieleń ──────────────────────
 BG          = "#ffffff"
@@ -156,13 +162,7 @@ def compress_image(src, dst):
     with Image.open(src) as img:
         img = ImageOps.exif_transpose(img)
         img = img.convert("RGB")
-        w, h = img.size
-        if h <= 0:
-            return
-        # Wysokość małego archiwum ma zawsze wynosić 1080 px.
-        scale = SMALL_ARCHIVE_HEIGHT / h
-        new_w = max(1, int(round(w * scale)))
-        img = img.resize((new_w, SMALL_ARCHIVE_HEIGHT), Image.LANCZOS)
+        img = _scale_to_1080(img)
         dst.parent.mkdir(parents=True, exist_ok=True)
         img.save(dst, format="JPEG", quality=JPEG_QUALITY, optimize=True)
 
@@ -194,26 +194,68 @@ def collect_stopklatki_cache(projects, root):
     return cache, temp_dir
 
 
-def render_pdf_pages_to_jpg(src_pdf, dst_dir, base_name):
-    if not FITZ_AVAILABLE:
-        raise RuntimeError("Brak biblioteki PyMuPDF (fitz). Zainstaluj: pip install PyMuPDF")
+def _scale_to_1080(img: "Image.Image") -> "Image.Image":
+    """Skaluje obraz tak by dłuższy bok = 1080 px, zachowując proporcje."""
+    w, h = img.size
+    long_side = max(w, h)
+    if long_side <= SMALL_ARCHIVE_HEIGHT:
+        return img
+    scale  = SMALL_ARCHIVE_HEIGHT / long_side
+    new_w  = max(1, int(round(w * scale)))
+    new_h  = max(1, int(round(h * scale)))
+    return img.resize((new_w, new_h), Image.LANCZOS)
 
+
+def render_pdf_pages_to_jpg(src_pdf: Path, dst_dir: Path, base_name: str) -> int:
+    """
+    Konwertuje każdą stronę PDF na JPG 1080px (dłuższy bok).
+    Próbuje kolejno: PyMuPDF → pdf2image → błąd.
+
+    Instalacja:
+        pip install PyMuPDF          # zalecane, działa bez dodatkowych narzędzi
+        pip install pdf2image        # wymaga też: brew install poppler  (macOS)
+                                     #              apt install poppler-utils (Linux)
+                                     #              choco install poppler  (Windows)
+    """
+    dst_dir.mkdir(parents=True, exist_ok=True)
     count = 0
-    with fitz.open(src_pdf) as doc:
-        for i, page in enumerate(doc, start=1):
-            pix = page.get_pixmap(alpha=False)
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            w, h = img.size
-            if h > 0:
-                scale = SMALL_ARCHIVE_HEIGHT / h
-                new_w = max(1, int(round(w * scale)))
-                img = img.resize((new_w, SMALL_ARCHIVE_HEIGHT), Image.LANCZOS)
+
+    # ── Metoda 1: PyMuPDF ────────────────────────────────────────────────────
+    if FITZ_AVAILABLE:
+        # Renderuj przy 150 DPI (matrix 150/72 ≈ 2.083).
+        # Domyślne 72 DPI daje A4 = 595×842 px – zbyt małe do skalowania w dół.
+        RENDER_DPI  = 150
+        ZOOM        = RENDER_DPI / 72.0
+        mat         = fitz.Matrix(ZOOM, ZOOM)
+
+        with fitz.open(str(src_pdf)) as doc:
+            for i, page in enumerate(doc, start=1):
+                pix = page.get_pixmap(matrix=mat, alpha=False, colorspace=fitz.csRGB)
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                img = _scale_to_1080(img)
+                dst = dst_dir / f"{base_name}_str{i:02d}.jpg"
+                img.save(dst, format="JPEG", quality=JPEG_QUALITY, optimize=True)
+                count += 1
+        return count
+
+    # ── Metoda 2: pdf2image (Poppler) ────────────────────────────────────────
+    if PDF2IMAGE_AVAILABLE:
+        pages = convert_from_path(str(src_pdf), dpi=150)
+        for i, pil_img in enumerate(pages, start=1):
+            img = pil_img.convert("RGB")
+            img = _scale_to_1080(img)
             dst = dst_dir / f"{base_name}_str{i:02d}.jpg"
-            dst.parent.mkdir(parents=True, exist_ok=True)
             img.save(dst, format="JPEG", quality=JPEG_QUALITY, optimize=True)
             count += 1
+        return count
 
-    return count
+    # ── Brak bibliotek ───────────────────────────────────────────────────────
+    raise RuntimeError(
+        "Brak biblioteki do konwersji PDF.\n"
+        "Zainstaluj jedną z poniższych:\n"
+        "  pip install PyMuPDF          ← zalecane\n"
+        "  pip install pdf2image        ← wymaga Poppler"
+    )
 
 def create_small_archive(root, meta, log, stopklatki_cache, projects):
     if not PIL_AVAILABLE:
@@ -278,8 +320,10 @@ def run_archive(root, log):
     if root.name.endswith("_E"):
         log("✗  To jest folder Małego Archiwum. Wybierz Duże Archiwum (bez _E).")
         return
-    if not FITZ_AVAILABLE:
-        log("⚠  Brak PyMuPDF. Konwersja PDF -> JPG będzie pomijana.")
+    pdf_ok = FITZ_AVAILABLE or PDF2IMAGE_AVAILABLE
+    if not pdf_ok:
+        log("⚠  Brak biblioteki PDF→JPG. Zainstaluj: pip install PyMuPDF")
+        log("   Pliki PDF w dużym archiwum zostaną pominięte w małym archiwum.")
 
     meta = parse_root_name(root.name)
     log(f"Folder: {root.name}")
@@ -312,6 +356,7 @@ class ArchiveApp(tk.Tk):
         self._selected_path = tk.StringVar(value="")
         self._build_ui()
         self._center()
+        self._bring_to_front()
 
     def _center(self):
         self.update_idletasks()
@@ -320,22 +365,51 @@ class ArchiveApp(tk.Tk):
         sh = self.winfo_screenheight()
         self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
+    def _bring_to_front(self):
+        """Próbuje pokazać okno na wierzchu przy starcie aplikacji."""
+        self.deiconify()
+        self.lift()
+        self.focus_force()
+        self.attributes("-topmost", True)
+        self.after(300, lambda: self.attributes("-topmost", False))
+
     def _build_ui(self):
         # ── Top bar – zamieniony na biały ─────────────────────────────────────
         topbar = tk.Frame(self, bg=BG, height=56)
         topbar.pack(fill="x")
-        topbar.pack_propagate(False)
+        topbar.grid_propagate(False)
+        topbar.columnconfigure(0, weight=0)
+        topbar.columnconfigure(1, weight=1)
+        topbar.columnconfigure(2, weight=0)
+        topbar.columnconfigure(3, weight=0)
+        topbar.columnconfigure(4, weight=0)
 
-        tk.Label(topbar, text="  ", font=FONT_LABEL,
-                 bg=GREEN, fg=BG_DARK, padx=6, pady=3).pack(side="left", padx=20, pady=14)
-        tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
-                 font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(side="left", padx=4)
-
-        # ── Pillow status w topbarze ───────────────────────────────────────────
+        tk.Label(topbar, text=" ", font=FONT_LABEL, bg=GREEN, fg=BG_DARK, padx=6, pady=3).grid(
+            row=0, column=0, sticky="w", padx=20, pady=12
+        )
+        tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP", font=FONT_SUB, fg=TEXT_DIM, bg=BG).grid(
+            row=0, column=1
+        )
+        # ── Statusy bibliotek w topbarze ──────────────────────────────────────
         pil_text  = "● Pillow OK" if PIL_AVAILABLE else "● Pillow BRAK  →  pip install Pillow"
         pil_color = GREEN if PIL_AVAILABLE else "#ff5252"
         tk.Label(topbar, text=pil_text, font=FONT_LABEL,
-                 fg=pil_color, bg=BG).pack(side="right", padx=20)
+                 fg=pil_color, bg=BG).grid(row=0, column=2, sticky="e", padx=(8, 8))
+
+        if FITZ_AVAILABLE:
+            pdf_text, pdf_color = "● PyMuPDF OK", GREEN
+        elif PDF2IMAGE_AVAILABLE:
+            pdf_text, pdf_color = "● pdf2image OK", GREEN
+        else:
+            pdf_text, pdf_color = "● PDF→JPG BRAK  →  pip install PyMuPDF", "#ff5252"
+        tk.Label(topbar, text=pdf_text, font=FONT_LABEL,
+                 fg=pdf_color, bg=BG).grid(row=0, column=3, sticky="e", padx=(8, 8))
+
+        tk.Label(topbar, text="Autor: Wiktor Suchy", font=FONT_SUB, fg=TEXT_DIM, bg=BG).grid(
+            row=0, column=4, sticky="e", padx=20
+        )
+
+        tk.Frame(self, bg=GREEN, height=3).pack(fill="x")
 
         # ── Tytuł z zielonym paskiem ──────────────────────────────────────────
         title_frame = tk.Frame(self, bg=BG)
@@ -346,11 +420,11 @@ class ArchiveApp(tk.Tk):
         title_inner = tk.Frame(title_frame, bg=BG, padx=24, pady=20)
         title_inner.pack(side="left", fill="x", expand=True)
 
-        tk.Label(title_inner, text="Archiwizacja\ni kompresja",
+        tk.Label(title_inner, text="Krok 2: Archiwizacja\ni kompresja",
                  font=FONT_TITLE, fg=TEXT, bg=BG,
                  justify="left").pack(anchor="w")
         tk.Label(title_inner,
-                 text="Uruchom po uzupełnieniu _INF.txt i wrzuceniu plików do podfolderów.",
+                 text="Uruchom po uzupełnieniu _INF.txt i wrzuceniu plików do podfolderów.\nProgram zadba o nazewnictwo i kompresje",
                  font=FONT_SUB, fg=TEXT_DIM, bg=BG, justify="left").pack(anchor="w", pady=(4, 0))
 
         tk.Frame(self, bg=BORDER, height=2).pack(fill="x")

@@ -18,9 +18,9 @@ except ImportError:
 
 try:
     import fitz  # type: ignore
-    FITZ_AVAILABLE = True
+    PDF_RENDER_AVAILABLE = True
 except ImportError:
-    FITZ_AVAILABLE = False
+    PDF_RENDER_AVAILABLE = False
 
 # ── Paleta – jak instrukcja ASP: biała + neonowa zieleń ──────────────────────
 BG          = "#ffffff"
@@ -47,7 +47,7 @@ SMALL_ARCHIVE_HEIGHT = 1080
 JPEG_QUALITY       = 60
 SUFFIX_MAP = {
     "zdjecia": "M", "plansze": "P", "rendering": "R",
-    "film_prezentacja_animacja": "F", "szkicownik": "S",
+    "film": "F", "szkicownik": "S",
 }
 
 # ── Logika ─────────────────────────────────────────────────────────────────────
@@ -76,11 +76,6 @@ def get_next_index(directory, suffix):
                 max_idx = max(max_idx, int(m.group(1)))
     return max_idx + 1
 
-
-def has_material_subfolders(directory: Path) -> bool:
-    """Sprawdza, czy folder zawiera podfoldery materiałów archiwum."""
-    return any((directory / name).is_dir() for name in SUFFIX_MAP)
-
 def iter_projects(root, meta):
     for level1 in sorted(root.iterdir()):
         if not level1.is_dir() or level1.name.startswith("."):
@@ -93,45 +88,16 @@ def iter_projects(root, meta):
             workshop_code = extract_workshop_code(level2.name, meta)
             prefix = f"{meta['surname_initial']}_{workshop_code}_{meta['year']}_{meta['semester']}"
             rest = level2.name[len(prefix):].lstrip("_")
+            yield level1.name, workshop_code, level2, (rest if rest else workshop_code)
 
-            # Wariant A: materiały są bezpośrednio w folderze pracowni.
-            if has_material_subfolders(level2):
-                yield level1.name, workshop_code, level2, (rest if rest else workshop_code)
-                continue
-
-            # Wariant B: materiały są poziom niżej, np. pracownia/projekt/...
-            for project_dir in sorted(level2.iterdir()):
-                if not project_dir.is_dir() or project_dir.name.startswith("."):
-                    continue
-                if not has_material_subfolders(project_dir):
-                    continue
-                yield level1.name, workshop_code, project_dir, project_dir.name
-
-
-def to_small_rel_path(path_from_root: Path) -> Path:
-    """Mapuje ścieżkę z Dużego Archiwum na docelową ścieżkę w Małym Archiwum.
-    Kategorie w Małym Archiwum są z wielkiej litery: Projektowe/Plastyczne/Inne.
-    """
-    parts = list(path_from_root.parts)
-    if parts:
-        parts[0] = parts[0].capitalize()
-    return Path(*parts)
-
-def process_large_archive(projects, meta, log):
+def process_large_archive(root, meta, log):
     log("━━  DUŻE ARCHIWUM  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    for cat_label, workshop_code, project_dir, project_name in projects:
+    for cat_label, workshop_code, project_dir, project_name in iter_projects(root, meta):
         log(f"\n  [{cat_label} / {workshop_code}] {project_name}")
         for folder_name, suffix_code in SUFFIX_MAP.items():
             sub_dir = project_dir / folder_name
             if not sub_dir.is_dir():
                 continue
-
-            if folder_name == "film_prezentacja_animacja":
-                stopklatki_dir = sub_dir / "stopklatki"
-                if stopklatki_dir.is_dir():
-                    shutil.rmtree(stopklatki_dir)
-                    log("    ✗  Usunięto folder: film_prezentacja_animacja/stopklatki")
-
             files = sorted([f for f in sub_dir.iterdir()
                             if f.is_file() and not f.name.startswith(".")])
             for file_path in files:
@@ -144,9 +110,17 @@ def process_large_archive(projects, meta, log):
                 )
                 file_path.rename(project_dir / new_name)
                 log(f"    ✓  {folder_name}/{file_path.name}  →  {new_name}")
+
+            if folder_name == "film":
+                stopklatki_dir = sub_dir / "stopklatki"
+                if stopklatki_dir.is_dir():
+                    shutil.rmtree(stopklatki_dir)
+                    log("    ✗  Usunięto folder: film/stopklatki (nie trafia do Dużego Archiwum)")
+
             try:
                 for hidden in sub_dir.rglob(".*"):
-                    hidden.unlink()
+                    if hidden.is_file():
+                        hidden.unlink()
                 sub_dir.rmdir()
                 log(f"    ✗  Usunięto pusty folder: {folder_name}/")
             except OSError:
@@ -157,28 +131,30 @@ def compress_image(src, dst):
         img = ImageOps.exif_transpose(img)
         img = img.convert("RGB")
         w, h = img.size
+
+        # W Małym Archiwum wysokość ma być zawsze równa 1080 px.
         if h <= 0:
             return
-        # Wysokość małego archiwum ma zawsze wynosić 1080 px.
         scale = SMALL_ARCHIVE_HEIGHT / h
         new_w = max(1, int(round(w * scale)))
         img = img.resize((new_w, SMALL_ARCHIVE_HEIGHT), Image.LANCZOS)
+
         dst.parent.mkdir(parents=True, exist_ok=True)
         img.save(dst, format="JPEG", quality=JPEG_QUALITY, optimize=True)
 
 
-def collect_stopklatki_cache(projects, root):
+def collect_stopklatki_cache(root, meta, log):
     cache = {}
     temp_dir = Path(tempfile.mkdtemp(prefix="asp_stopklatki_"))
 
-    for _, _, project_dir, _ in projects:
-        stopklatki_dir = project_dir / "film_prezentacja_animacja" / "stopklatki"
+    for _, _, project_dir, _ in iter_projects(root, meta):
+        stopklatki_dir = project_dir / "film" / "stopklatki"
         if not stopklatki_dir.is_dir():
             continue
 
         key = project_dir.relative_to(root).as_posix()
         cached_files = []
-        for idx, src in enumerate(sorted(stopklatki_dir.iterdir()), start=1):
+        for idx, src in enumerate(sorted(stopklatki_dir.rglob("*")), start=1):
             if not src.is_file() or src.name.startswith("."):
                 continue
             if src.suffix.lower() not in IMAGE_EXTENSIONS:
@@ -190,32 +166,32 @@ def collect_stopklatki_cache(projects, root):
 
         if cached_files:
             cache[key] = cached_files
+            log(f"    •  Zapisano stopklatki do Małego Archiwum: {len(cached_files)} szt.")
 
     return cache, temp_dir
 
 
-def render_pdf_pages_to_jpg(src_pdf, dst_dir, base_name):
-    if not FITZ_AVAILABLE:
-        raise RuntimeError("Brak biblioteki PyMuPDF (fitz). Zainstaluj: pip install PyMuPDF")
+def render_pdf_to_small_jpgs(src_pdf, dst_dir, base_name):
+    if not PDF_RENDER_AVAILABLE:
+        raise RuntimeError("Brak biblioteki PyMuPDF (fitz). Zainstaluj: pip install pymupdf")
 
+    dst_dir.mkdir(parents=True, exist_ok=True)
     count = 0
+
     with fitz.open(src_pdf) as doc:
         for i, page in enumerate(doc, start=1):
             pix = page.get_pixmap(alpha=False)
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            w, h = img.size
-            if h > 0:
-                scale = SMALL_ARCHIVE_HEIGHT / h
-                new_w = max(1, int(round(w * scale)))
-                img = img.resize((new_w, SMALL_ARCHIVE_HEIGHT), Image.LANCZOS)
-            dst = dst_dir / f"{base_name}_str{i:02d}.jpg"
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            img.save(dst, format="JPEG", quality=JPEG_QUALITY, optimize=True)
+            tmp_path = dst_dir / f".__tmp_{base_name}_{i:03d}.png"
+            pix.save(tmp_path.as_posix())
+
+            dst_jpg = dst_dir / f"{base_name}_s{i:02d}.jpg"
+            compress_image(tmp_path, dst_jpg)
+            tmp_path.unlink(missing_ok=True)
             count += 1
 
     return count
 
-def create_small_archive(root, meta, log, stopklatki_cache, projects):
+def create_small_archive(root, meta, log, stopklatki_cache):
     if not PIL_AVAILABLE:
         log("\n⚠  Pillow niedostępne – pomijam Małe Archiwum.")
         return
@@ -225,12 +201,10 @@ def create_small_archive(root, meta, log, stopklatki_cache, projects):
     log(f"\n━━  MAŁE ARCHIWUM  →  {small_root.name}  ━━━━━━━━━━━━━━━━━━━━━━━━")
     for cat in ["Projektowe", "Plastyczne", "Inne"]:
         (small_root / cat).mkdir(parents=True, exist_ok=True)
-    for cat_label, workshop_code, project_dir, project_name in projects:
+    for cat_label, workshop_code, project_dir, project_name in iter_projects(root, meta):
         log(f"\n  [{cat_label} / {workshop_code}] {project_name}")
-        small_project_rel = to_small_rel_path(project_dir.relative_to(root))
-        small_project_dir = small_root / small_project_rel
-        small_project_dir.mkdir(parents=True, exist_ok=True)
-        stopklatki_prefix = (
+        small_project_dir = small_root / project_dir.relative_to(root)
+        prefix = (
             f"{meta['surname_initial']}_{workshop_code}_{meta['year']}_{meta['semester']}_"
             f"{sanitize(project_name)}"
         )
@@ -238,7 +212,7 @@ def create_small_archive(root, meta, log, stopklatki_cache, projects):
         for file_path in sorted(project_dir.iterdir()):
             if not file_path.is_file() or file_path.name.startswith("."):
                 continue
-            rel = to_small_rel_path(file_path.relative_to(root))
+            rel = file_path.relative_to(root)
             dst = small_root / rel
             if file_path.suffix.lower() in IMAGE_EXTENSIONS:
                 dst_jpg = dst.with_suffix(".jpg")
@@ -251,8 +225,8 @@ def create_small_archive(root, meta, log, stopklatki_cache, projects):
                     log(f"    ✗  {file_path.name}  – błąd: {e}")
             elif file_path.suffix.lower() == ".pdf":
                 try:
-                    count = render_pdf_pages_to_jpg(file_path, small_project_dir, file_path.stem)
-                    log(f"    ✓  {file_path.name}  (PDF → {count} stron JPG)")
+                    page_count = render_pdf_to_small_jpgs(file_path, small_project_dir, file_path.stem)
+                    log(f"    ✓  {file_path.name}  (PDF → {page_count} stron JPG)")
                 except Exception as e:
                     log(f"    ✗  {file_path.name}  – błąd konwersji PDF: {e}")
             elif file_path.suffix.lower() == ".txt":
@@ -265,7 +239,7 @@ def create_small_archive(root, meta, log, stopklatki_cache, projects):
         key = project_dir.relative_to(root).as_posix()
         stopklatki = stopklatki_cache.get(key, [])
         for idx, frame_path in enumerate(stopklatki, start=1):
-            dst_jpg = small_project_dir / f"{stopklatki_prefix}_K{idx:02d}.jpg"
+            dst_jpg = small_project_dir / f"{prefix}_K{idx:02d}.jpg"
             try:
                 compress_image(frame_path, dst_jpg)
                 log(f"    ✓  stopklatka  →  {dst_jpg.name}")
@@ -278,21 +252,14 @@ def run_archive(root, log):
     if root.name.endswith("_E"):
         log("✗  To jest folder Małego Archiwum. Wybierz Duże Archiwum (bez _E).")
         return
-    if not FITZ_AVAILABLE:
-        log("⚠  Brak PyMuPDF. Konwersja PDF -> JPG będzie pomijana.")
-
     meta = parse_root_name(root.name)
     log(f"Folder: {root.name}")
     log(f"Student: {meta['surname_initial']}  |  rok {meta['year']}  |  semestr {meta['semester']}\n")
 
-    projects = list(iter_projects(root, meta))
-    if not projects:
-        log("✗  Nie znaleziono projektów do przetworzenia.")
-        return
+    stopklatki_cache, temp_dir = collect_stopklatki_cache(root, meta, log)
+    process_large_archive(root, meta, log)
+    create_small_archive(root, meta, log, stopklatki_cache)
 
-    stopklatki_cache, temp_dir = collect_stopklatki_cache(projects, root)
-    process_large_archive(projects, meta, log)
-    create_small_archive(root, meta, log, stopklatki_cache, projects)
     shutil.rmtree(temp_dir, ignore_errors=True)
 
     log("\n✓  Gotowe! Nie zapomnij:")
@@ -326,7 +293,7 @@ class ArchiveApp(tk.Tk):
         topbar.pack(fill="x")
         topbar.pack_propagate(False)
 
-        tk.Label(topbar, text="  ", font=FONT_LABEL,
+        tk.Label(topbar, text=" KROK 2 ", font=FONT_LABEL,
                  bg=GREEN, fg=BG_DARK, padx=6, pady=3).pack(side="left", padx=20, pady=14)
         tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
                  font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(side="left", padx=4)
@@ -394,7 +361,7 @@ class ArchiveApp(tk.Tk):
 
         checks = [
             "✓   Uruchomiłeś/aś  1_ASP_Setup  i uzupełniłeś/aś pliki _INF.txt",
-            "✓   Pliki są w podfolderach:  zdjecia / plansze / film_prezentacja_animacja / rendering / szkicownik",
+            "✓   Pliki są w podfolderach:  zdjecia / plansze / film / rendering / szkicownik",
             "✓   Folder główny NIE kończy się na  _E",
         ]
         for c in checks:

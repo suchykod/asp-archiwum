@@ -1,0 +1,138 @@
+kierunek,semestr,kod_pracowni,kategoria,nazwa_przedmiotu,prowadzacy
+PPP,1,P1,Projektowe,Projektowanie 1,dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,1,KT,Inne,Projektowanie Konstrukcyjne i Technologiczne,dr inż. Przemysław Siemiński / dr inż. Roman Grygoruk
+PPP,1,PKW,Inne,Podstawy Komunikacji Wizualnej,dr Magdalena Małczyńska-Umeda / dr Jakub Jezierski
+PPP,1,TM,Inne,Technologia i Modelowanie,dr Maciej Stefański / Maciej Głowacki
+PPP,1,TP,Inne,Techniki Prezentacyjne,dr Zuzanna Łąpieś / Sebastian Zgutka
+PPP,1,RZ1,Plastyczne,Kompozycja Brył i Płaszczyzn,dr Antonina Konopelska / dr Paweł Mysera
+PPP,1,E,Inne,Ergonomia,Kamil Kowalski
+PPP,2,P1,Projektowe,Projektowanie 1,dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,2,PPPP,Projektowe,Podstawy Projektowania Produktu Przemysłowego,dr Dominik Głąb / Mikołaj Dymowski
+PPP,2,KT,Inne,Projektowanie Konstrukcyjne i Technologiczne,dr inż. Przemysław Siemiński / dr inż. Roman Grygoruk
+PPP,2,TM,Inne,Technologia i Modelowanie,dr Maciej Stefański / Maciej Głowacki
+PPP,2,TP,Inne,Techniki Prezentacyjne,dr Zuzanna Łąpieś / Sebastian Zgutka
+PPP,2,RZ1,Plastyczne,Kompozycja Brył i Płaszczyzn,dr Antonina Konopelska / dr Paweł Mysera
+PPP,2,E,Inne,Ergonomia,Kamil Kowalski
+PPP,3,P2,Projektowe,Projektowanie 2,dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,3,M1,Plastyczne,Pracownia Malarstwa,dr Mikołaj Chylak
+PPP,3,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PPP,3,RZ3,Plastyczne,Pracownia Rzeźby i Współistnienia,Zofia Kwasieborska-Keller
+PPP,3,KD,Inne,Zarządzanie Designem i Budowanie Marki,dr Karolina Dudek
+PPP,4,P2,Projektowe,Projektowanie 2,dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,4,M1,Plastyczne,Pracownia Malarstwa,dr Mikołaj Chylak
+PPP,4,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PPP,4,RZ3,Plastyczne,Pracownia Rzeźby i Współistnienia,Zofia Kwasieborska-Keller
+PPP,4,KD,Inne,Zarządzanie Designem i Budowanie Marki,dr Karolina Dudek
+PPP,5,P3,Projektowe,Projektowanie 3,dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,5,MS,Projektowe,Pracownia Projektowania Społecznego,prof. Michał Stefanowski
+PPP,5,JP,Projektowe,Pracownia Projektowania Kontekstualnego,prof. Jerzy Porębski
+PPP,5,GN,Projektowe,Pracownia Projektowania Strategii Ekologicznych,prof. Grzegorz Niwiński
+PPP,5,DZ,Projektowe,Pracownia Projektowania Krytycznego,dr hab. Daniel Zieliński
+PPP,5,PG,Projektowe,Pracownia Projektowania Przestrzeni Publicznej,dr Paweł Grobelny
+PPP,5,AF,Projektowe,Pracownia Projektowania Typografii,prof. Artur Frankowski
+PPP,5,BM,Projektowe,Pracownia Projektowania Ceramiki,dr Bartłomiej Mejor
+PPP,5,MK,Projektowe,Pracownia Projektowania Opakowań i Marek,dr hab. Maciej Konopka prof. ASP
+PPP,5,JK,Projektowe,Pracownia Projektowania Interdyscyplinarnego,dr hab. Jarosław Kozakiewicz prof. ASP
+PPP,5,PJ,Projektowe,Eksperymentalna Pracownia Drewna,dr Paweł Jasiewicz
+PPP,5,BP,Projektowe,Pracownia Projektowania dla Nowego Przemysłu,prof. Bartosz Piotrowski
+PPP,5,M1,Plastyczne,Pracownia Malarstwa,dr Mikołaj Chylak
+PPP,5,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PPP,5,RZ3,Plastyczne,Pracownia Rzeźby i Współistnienia,Zofia Kwasieborska-Keller
+PPP,6,P3,Projektowe,Projektowanie 3,dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,6,MS,Projektowe,Pracownia Projektowania Społecznego,prof. Michał Stefanowski
+PPP,6,JP,Projektowe,Pracownia Projektowania Kontekstualnego,prof. Jerzy Porębski
+PPP,6,GN,Projektowe,Pracownia Projektowania Strategii Ekologicznych,prof. Grzegorz Niwiński
+PPP,6,DZ,Projektowe,Pracownia Projektowania Krytycznego,dr hab. Daniel Zieliński
+PPP,6,PG,Projektowe,Pracownia Projektowania Przestrzeni Publicznej,dr Paweł Grobelny
+PPP,6,AF,Projektowe,Pracownia Projektowania Typografii,prof. Artur Frankowski
+PPP,6,BM,Projektowe,Pracownia Projektowania Ceramiki,dr Bartłomiej Mejor
+PPP,6,MK,Projektowe,Pracownia Projektowania Opakowań i Marek,dr hab. Maciej Konopka prof. ASP
+PPP,6,JK,Projektowe,Pracownia Projektowania Interdyscyplinarnego,dr hab. Jarosław Kozakiewicz prof. ASP
+PPP,6,PJ,Projektowe,Eksperymentalna Pracownia Drewna,dr Paweł Jasiewicz
+PPP,6,BP,Projektowe,Pracownia Projektowania dla Nowego Przemysłu,prof. Bartosz Piotrowski
+PPP,6,M1,Plastyczne,Pracownia Malarstwa,dr Mikołaj Chylak
+PPP,6,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PPP,6,RZ3,Plastyczne,Pracownia Rzeźby i Współistnienia,Zofia Kwasieborska-Keller
+PPP,L,P4,Projektowe,Projektowanie 4 (licencjat),dr Jan Buczek / Bronka de Sage / dr Jakub Marzoch / dr Robert Pludra / prof. Jerzy Porębski / prof. Wojciech Małolepszy
+PPP,L,MS,Projektowe,Pracownia Projektowania Społecznego,prof. Michał Stefanowski
+PPP,L,JP,Projektowe,Pracownia Projektowania Kontekstualnego,prof. Jerzy Porębski
+PPP,L,GN,Projektowe,Pracownia Projektowania Strategii Ekologicznych,prof. Grzegorz Niwiński
+PPP,L,DZ,Projektowe,Pracownia Projektowania Krytycznego,dr hab. Daniel Zieliński
+PPP,L,PG,Projektowe,Pracownia Projektowania Przestrzeni Publicznej,dr Paweł Grobelny
+PPP,L,AF,Projektowe,Pracownia Projektowania Typografii,prof. Artur Frankowski
+PPP,L,BM,Projektowe,Pracownia Projektowania Ceramiki,dr Bartłomiej Mejor
+PPP,L,MK,Projektowe,Pracownia Projektowania Opakowań i Marek,dr hab. Maciej Konopka prof. ASP
+PPP,L,JK,Projektowe,Pracownia Projektowania Interdyscyplinarnego,dr hab. Jarosław Kozakiewicz prof. ASP
+PPP,L,PJ,Projektowe,Eksperymentalna Pracownia Drewna,dr Paweł Jasiewicz
+PPP,L,BP,Projektowe,Pracownia Projektowania dla Nowego Przemysłu,prof. Bartosz Piotrowski
+PU,1,PU1,Projektowe,Pracownia Podstaw Projektowania Ubioru 1,Marcel Sommer
+PU,1,GM1,Projektowe,Projektowanie Graficzne 1,dr Dominika Wirkowska
+PU,1,MAT1,Projektowe,Projektowanie Materiałów 1,dr Magdalena Komar
+PU,1,RM1,Plastyczne,Rysunek 1,dr hab. Agnieszka Rożnowska-Jasiewicz prof. ASP
+PU,1,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PU,2,PU1,Projektowe,Pracownia Podstaw Projektowania Ubioru 1,Marcel Sommer
+PU,2,GM1,Projektowe,Projektowanie Graficzne 1,dr Dominika Wirkowska
+PU,2,MAT1,Projektowe,Projektowanie Materiałów 1,dr Magdalena Komar
+PU,2,RM1,Plastyczne,Rysunek 1,dr hab. Agnieszka Rożnowska-Jasiewicz prof. ASP
+PU,2,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PU,3,PU2,Projektowe,Pracownia Podstaw Projektowania Ubioru 2,Zuzanna Srebrna
+PU,3,GM2,Projektowe,Projektowanie Graficzne 2,dr Dominika Wirkowska
+PU,3,MAT2,Projektowe,Projektowanie Materiałów 2,dr Magdalena Komar
+PU,3,RM2,Plastyczne,Rysunek 2,dr hab. Agnieszka Rożnowska-Jasiewicz prof. ASP
+PU,3,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PU,4,PU2,Projektowe,Pracownia Podstaw Projektowania Ubioru 2,Zuzanna Srebrna
+PU,4,GM2,Projektowe,Projektowanie Graficzne 2,dr Dominika Wirkowska
+PU,4,MAT2,Projektowe,Projektowanie Materiałów 2,dr Magdalena Komar
+PU,4,RM2,Plastyczne,Rysunek 2,dr hab. Agnieszka Rożnowska-Jasiewicz prof. ASP
+PU,4,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PU,5,PU3,Projektowe,Pracownia Podstaw Projektowania Ubioru 3,Manon Kündig
+PU,5,RM2,Plastyczne,Rysunek 2,dr hab. Agnieszka Rożnowska-Jasiewicz prof. ASP
+PU,5,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PU,6,PU3,Projektowe,Pracownia Podstaw Projektowania Ubioru 3,Manon Kündig
+PU,6,RM2,Plastyczne,Rysunek 2,dr hab. Agnieszka Rożnowska-Jasiewicz prof. ASP
+PU,6,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PU,L,PU3,Projektowe,Pracownia Podstaw Projektowania Ubioru 3 (licencjat),Manon Kündig
+PIB,SM1,MWP,Projektowe,Warsztaty Projektowe,różni prowadzący
+PIB,SM1,MPB,Projektowe,Platformy Badawcze,różni prowadzący
+PIB,SM1,M1,Plastyczne,Pracownia Malarstwa,dr Mikołaj Chylak
+PIB,SM1,RZ2,Plastyczne,Pracownia Rzeźby i Multimediów,dr Cezary Koczwarski
+PIB,SM1,RZ3,Plastyczne,Pracownia Rzeźby i Współistnienia,Zofia Kwasieborska-Keller
+PIB,SM1,MS,Projektowe,Pracownia Projektowania Społecznego,prof. Michał Stefanowski
+PIB,SM1,JP,Projektowe,Pracownia Projektowania Kontekstualnego,prof. Jerzy Porębski
+PIB,SM1,GN,Projektowe,Pracownia Projektowania Strategii Ekologicznych,prof. Grzegorz Niwiński
+PIB,SM1,DZ,Projektowe,Pracownia Projektowania Krytycznego,dr hab. Daniel Zieliński
+PIB,SM1,PG,Projektowe,Pracownia Projektowania Przestrzeni Publicznej,dr Paweł Grobelny
+PIB,SM1,AF,Projektowe,Pracownia Projektowania Typografii,prof. Artur Frankowski
+PIB,SM1,BM,Projektowe,Pracownia Projektowania Ceramiki,dr Bartłomiej Mejor
+PIB,SM1,MK,Projektowe,Pracownia Projektowania Opakowań i Marek,dr hab. Maciej Konopka prof. ASP
+PIB,SM1,JK,Projektowe,Pracownia Projektowania Interdyscyplinarnego,dr hab. Jarosław Kozakiewicz prof. ASP
+PIB,SM1,PJ,Projektowe,Eksperymentalna Pracownia Drewna,dr Paweł Jasiewicz
+PIB,SM1,BP,Projektowe,Pracownia Projektowania dla Nowego Przemysłu,prof. Bartosz Piotrowski
+PIB,SM2,MWP,Projektowe,Warsztaty Projektowe,różni prowadzący
+PIB,SM2,MPB,Projektowe,Platformy Badawcze,różni prowadzący
+PIB,SM2,MS,Projektowe,Pracownia Projektowania Społecznego,prof. Michał Stefanowski
+PIB,SM2,JP,Projektowe,Pracownia Projektowania Kontekstualnego,prof. Jerzy Porębski
+PIB,SM2,GN,Projektowe,Pracownia Projektowania Strategii Ekologicznych,prof. Grzegorz Niwiński
+PIB,SM2,DZ,Projektowe,Pracownia Projektowania Krytycznego,dr hab. Daniel Zieliński
+PIB,SM2,PG,Projektowe,Pracownia Projektowania Przestrzeni Publicznej,dr Paweł Grobelny
+PIB,SM2,AF,Projektowe,Pracownia Projektowania Typografii,prof. Artur Frankowski
+PIB,SM2,BM,Projektowe,Pracownia Projektowania Ceramiki,dr Bartłomiej Mejor
+PIB,SM2,MK,Projektowe,Pracownia Projektowania Opakowań i Marek,dr hab. Maciej Konopka prof. ASP
+PIB,SM2,JK,Projektowe,Pracownia Projektowania Interdyscyplinarnego,dr hab. Jarosław Kozakiewicz prof. ASP
+PIB,SM2,PJ,Projektowe,Eksperymentalna Pracownia Drewna,dr Paweł Jasiewicz
+PIB,SM2,BP,Projektowe,Pracownia Projektowania dla Nowego Przemysłu,prof. Bartosz Piotrowski
+PIB,SM3,MWP,Projektowe,Warsztaty Projektowe,różni prowadzący
+PIB,SM3,MPB,Projektowe,Platformy Badawcze,różni prowadzący
+PIB,SM3,MS,Projektowe,Pracownia Projektowania Społecznego,prof. Michał Stefanowski
+PIB,SM3,JP,Projektowe,Pracownia Projektowania Kontekstualnego,prof. Jerzy Porębski
+PIB,SM3,GN,Projektowe,Pracownia Projektowania Strategii Ekologicznych,prof. Grzegorz Niwiński
+PIB,SM3,DZ,Projektowe,Pracownia Projektowania Krytycznego,dr hab. Daniel Zieliński
+PIB,SM3,PG,Projektowe,Pracownia Projektowania Przestrzeni Publicznej,dr Paweł Grobelny
+PIB,SM3,AF,Projektowe,Pracownia Projektowania Typografii,prof. Artur Frankowski
+PIB,SM3,BM,Projektowe,Pracownia Projektowania Ceramiki,dr Bartłomiej Mejor
+PIB,SM3,MK,Projektowe,Pracownia Projektowania Opakowań i Marek,dr hab. Maciej Konopka prof. ASP
+PIB,SM3,JK,Projektowe,Pracownia Projektowania Interdyscyplinarnego,dr hab. Jarosław Kozakiewicz prof. ASP
+PIB,SM3,PJ,Projektowe,Eksperymentalna Pracownia Drewna,dr Paweł Jasiewicz
+PIB,SM3,BP,Projektowe,Pracownia Projektowania dla Nowego Przemysłu,prof. Bartosz Piotrowski
+PIB,M,MWP,Projektowe,Warsztaty Projektowe (magisterka),różni prowadzący
+PIB,M,MPB,Projektowe,Platformy Badawcze (magisterka),różni prowadzący

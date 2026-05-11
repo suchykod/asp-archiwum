@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='1_ASP_Setup',
+    name='Archiwiktor setup',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -38,7 +38,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='1_ASP_Setup.app',
+    name='Archiwiktor setup.app',
     icon=None,
     bundle_identifier=None,
 )

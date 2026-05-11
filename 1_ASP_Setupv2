@@ -1,0 +1,557 @@
+#!/usr/bin/env python3
+"""ASP Warszawa – Krok 1: Setup struktury folderów (wizard)"""
+
+import csv
+import re
+import sys
+import threading
+import tkinter as tk
+from tkinter import filedialog, scrolledtext, messagebox
+from pathlib import Path
+
+# ── Paleta ────────────────────────────────────────────────────────────────────
+BG         = "#ffffff"
+BG_DARK    = "#111111"
+GREEN      = "#00e676"
+GREEN_DARK = "#00b85c"
+BORDER     = "#111111"
+TEXT       = "#111111"
+TEXT_INV   = "#ffffff"
+TEXT_DIM   = "#666666"
+BG_LOG     = "#f5f5f5"
+BG_INPUT   = "#f9f9f9"
+
+IS_MAC     = sys.platform == "darwin"
+FONT_TITLE = ("Helvetica Neue", 24, "bold") if IS_MAC else ("Arial", 18, "bold")
+FONT_UI    = ("Helvetica Neue", 13)         if IS_MAC else ("Arial", 12)
+FONT_MONO  = ("Menlo", 10)                  if IS_MAC else ("Consolas", 10)
+FONT_SUB   = ("Helvetica Neue", 11)         if IS_MAC else ("Arial", 10)
+FONT_LABEL = ("Helvetica Neue", 10, "bold") if IS_MAC else ("Arial", 9, "bold")
+FONT_SMALL = ("Helvetica Neue", 9)          if IS_MAC else ("Arial", 8)
+
+# ── Dane kierunków ────────────────────────────────────────────────────────────
+KIERUNKI = {
+    "PPP": "Projektowanie produktu, przestrzeni, przekazu",
+    "PU":  "Projektowanie ubioru i jego konteksty",
+    "PIB": "Projektowanie i badania (mgr)",
+}
+SEMESTRY = {
+    "PPP": ["1", "2", "3", "4", "5", "6", "L"],
+    "PU":  ["1", "2", "3", "4", "5", "6", "L"],
+    "PIB": ["SM1", "SM2", "SM3", "M"],
+}
+KATEGORIE_ORDER = ["Projektowe", "Plastyczne", "Inne"]
+
+# ── Ładowanie CSV ─────────────────────────────────────────────────────────────
+
+def load_csv(csv_path: Path) -> list[dict]:
+    """Ładuje bazę pracowni z pliku CSV. Szuka go obok skryptu."""
+    rows = []
+    if not csv_path.exists():
+        return rows
+    with open(csv_path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            rows.append(row)
+    return rows
+
+
+def get_pracownie(db: list[dict], kierunek: str, semestr: str) -> list[dict]:
+    return [r for r in db if r["kierunek"] == kierunek and r["semestr"] == semestr]
+
+# ── Logika tworzenia folderów ─────────────────────────────────────────────────
+
+SUBFOLDERS = ["film", "plansze", "rendering", "szkicownik", "zdjecia"]
+
+
+def create_inf_template(path: Path, meta: dict, workshop_code: str,
+                        nazwa: str, prowadzacy: str) -> None:
+    try:
+        year_int = int(meta["year"])
+        academic_year = f"{year_int}/{year_int + 1}"
+    except ValueError:
+        academic_year = meta["year"]
+
+    content = (
+        f"TYTUŁ PRACY:        [uzupełnij – nazwa projektu]\n"
+        f"IMIĘ I NAZWISKO:    {meta['full_name']}\n"
+        f"NR ALBUMU:          {meta['album']}\n"
+        f"PRACOWNIA:          {workshop_code}  –  {nazwa}\n"
+        f"PROWADZĄCY:         {prowadzacy}\n"
+        f"ROK AKADEMICKI:     {academic_year}\n"
+        f"ROK / SEMESTR:      {meta['semester']}\n"
+        f"OPIS PROJEKTU:\n"
+        f"  [Kilka zdań opisu: założenia, materiały, technologia, cel projektu itp.]\n"
+    )
+    path.write_text(content, encoding="utf-8")
+
+
+def build_structure(root_dir: Path, parent_dir: Path,
+                    meta: dict, selected: list[dict], log) -> None:
+    """Tworzy całą strukturę folderów w wybranej lokalizacji."""
+    si   = meta["surname_initial"]
+    year = meta["year"]
+    sem  = meta["semester"]
+
+    root = parent_dir / f"{si}_{year}_{sem}"
+    root.mkdir(parents=True, exist_ok=True)
+    log(f"✓  Folder główny: {root.name}\n")
+
+    # Grupuj po kategorii
+    by_cat: dict[str, list] = {k: [] for k in KATEGORIE_ORDER}
+    for p in selected:
+        cat = p["kategoria"]
+        if cat not in by_cat:
+            by_cat[cat] = []
+        by_cat[cat].append(p)
+
+    for cat in KATEGORIE_ORDER:
+        pracownie = by_cat.get(cat, [])
+        if not pracownie:
+            continue
+        cat_dir = root / cat
+        cat_dir.mkdir(exist_ok=True)
+        log(f"▸  {cat}/")
+
+        for p in pracownie:
+            code    = p["kod_pracowni"]
+            nazwa   = p["nazwa_przedmiotu"]
+            prow    = p["prowadzacy"]
+            folder  = f"{si}_{code}_{year}_{sem}"
+            w_dir   = cat_dir / folder
+            w_dir.mkdir(exist_ok=True)
+
+            for sub in SUBFOLDERS:
+                (w_dir / sub).mkdir(exist_ok=True)
+
+            inf_name = f"{si}_{code}_{year}_{sem}_INF.txt"
+            inf_path = w_dir / inf_name
+            if not inf_path.exists():
+                create_inf_template(inf_path, meta, code, nazwa, prow)
+                log(f"   ↳  {folder}/  ✓  INF.txt wygenerowany")
+            else:
+                log(f"   ↳  {folder}/  –  INF.txt już istnieje")
+
+    log(f"\n✓  Struktura gotowa w: {root}")
+    log("   Uzupełnij TYTUŁ PRACY i OPIS PROJEKTU w plikach _INF.txt")
+    log("   Następnie wrzuć pliki do podfolderów i uruchom  2_ASP_Archiwum.")
+
+# ── GUI – główne okno ─────────────────────────────────────────────────────────
+
+class SetupWizard(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("ASP Archiwum – Krok 1: Setup")
+        self.configure(bg=BG)
+        self.resizable(True, True)
+
+        # Ścieżka do CSV obok skryptu
+        script_dir = Path(sys.argv[0]).resolve().parent
+        self._db = load_csv(script_dir / "asp_pracownie.csv")
+        if not self._db:
+            # fallback – szukaj w bieżącym katalogu
+            self._db = load_csv(Path.cwd() / "asp_pracownie.csv")
+
+        self._kierunek_var  = tk.StringVar(value="PPP")
+        self._semestr_var   = tk.StringVar(value="1")
+        self._surname_var   = tk.StringVar()
+        self._initial_var   = tk.StringVar()
+        self._fullname_var  = tk.StringVar()
+        self._album_var     = tk.StringVar()
+        self._year_var      = tk.StringVar(value="2026")
+        self._location_var  = tk.StringVar()
+
+        self._check_vars: dict[str, tk.BooleanVar] = {}
+
+        self._build_ui()
+        self._center()
+        self._refresh_pracownie()
+
+    def _center(self):
+        self.update_idletasks()
+        w, h = 780, 780
+        sw = self.winfo_screenwidth()
+        sh = self.winfo_screenheight()
+        self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
+
+    # ── budowa UI ─────────────────────────────────────────────────────────────
+
+    def _build_ui(self):
+        # Top bar
+        topbar = tk.Frame(self, bg=BG_DARK, height=48)
+        topbar.pack(fill="x")
+        topbar.pack_propagate(False)
+        tk.Label(topbar, text=" KROK 1 ", font=FONT_LABEL,
+                 bg=GREEN, fg=BG_DARK, padx=6, pady=3).pack(side="left", padx=20, pady=12)
+        tk.Label(topbar, text="Archiwizacja projektów  ·  Wydział Wzornictwa ASP",
+                 font=FONT_SUB, fg="#aaaaaa", bg=BG_DARK).pack(side="left", padx=4)
+
+        # Tytuł
+        title_frame = tk.Frame(self, bg=BG)
+        title_frame.pack(fill="x")
+        tk.Frame(title_frame, bg=GREEN, width=8).pack(side="left", fill="y")
+        ti = tk.Frame(title_frame, bg=BG, padx=24, pady=16)
+        ti.pack(side="left", fill="x", expand=True)
+        tk.Label(ti, text="Setup struktury folderów",
+                 font=FONT_TITLE, fg=TEXT, bg=BG).pack(anchor="w")
+        tk.Label(ti, text="Wypełnij formularz – skrypt automatycznie stworzy całą strukturę archiwum.",
+                 font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(2, 0))
+
+        tk.Frame(self, bg=BORDER, height=2).pack(fill="x")
+
+        # Scrollable content
+        canvas = tk.Canvas(self, bg=BG, highlightthickness=0)
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        self._content = tk.Frame(canvas, bg=BG)
+        self._content_window = canvas.create_window((0, 0), window=self._content, anchor="nw")
+
+        def _on_configure(e):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.itemconfig(self._content_window, width=canvas.winfo_width())
+
+        self._content.bind("<Configure>", _on_configure)
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig(
+            self._content_window, width=e.width))
+
+        # Mouse wheel
+        def _on_mousewheel(e):
+            canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
+        self._build_form(self._content)
+
+    def _sep(self, parent):
+        tk.Frame(parent, bg="#eeeeee", height=1).pack(fill="x", padx=32, pady=4)
+
+    def _section_label(self, parent, text):
+        tk.Label(parent, text=text, font=FONT_LABEL, fg=TEXT_DIM,
+                 bg=BG).pack(anchor="w", padx=32, pady=(14, 4))
+
+    def _build_form(self, parent):
+
+        # ── 1. Dane osobowe ───────────────────────────────────────────────────
+        self._section_label(parent, "1  DANE OSOBOWE")
+        grid = tk.Frame(parent, bg=BG, padx=32)
+        grid.pack(fill="x")
+        grid.columnconfigure(1, weight=1)
+        grid.columnconfigure(3, weight=1)
+
+        fields = [
+            ("Nazwisko:", self._surname_var, 0, 0),
+            ("Inicjał imienia (np. W):", self._initial_var, 0, 2),
+            ("Pełne imię i nazwisko:", self._fullname_var, 1, 0),
+            ("Nr albumu:", self._album_var, 1, 2),
+        ]
+        for label, var, row, col in fields:
+            tk.Label(grid, text=label, font=FONT_SUB, fg=TEXT, bg=BG,
+                     anchor="w").grid(row=row, column=col, sticky="w", pady=3, padx=(0, 8))
+            entry = tk.Entry(grid, textvariable=var, font=FONT_UI, bg=BG_INPUT,
+                             fg=TEXT, relief="flat",
+                             highlightbackground=BORDER, highlightthickness=1)
+            entry.grid(row=row, column=col+1, sticky="ew", padx=(0, 16), pady=3, ipady=6)
+
+        self._sep(parent)
+
+        # ── 2. Kierunek i semestr ─────────────────────────────────────────────
+        self._section_label(parent, "2  KIERUNEK I SEMESTR")
+        ks_frame = tk.Frame(parent, bg=BG, padx=32)
+        ks_frame.pack(fill="x")
+
+        tk.Label(ks_frame, text="Kierunek:", font=FONT_SUB,
+                 fg=TEXT, bg=BG).pack(anchor="w")
+        for code, name in KIERUNKI.items():
+            row = tk.Frame(ks_frame, bg=BG)
+            row.pack(anchor="w", pady=2)
+            rb = tk.Radiobutton(row, variable=self._kierunek_var, value=code,
+                                command=self._on_kierunek_change,
+                                bg=BG, activebackground=BG,
+                                selectcolor=GREEN, fg=TEXT, font=FONT_UI,
+                                relief="flat", bd=0)
+            rb.pack(side="left")
+            tk.Label(row, text=f"{code}  –  {name}", font=FONT_SUB,
+                     fg=TEXT, bg=BG).pack(side="left")
+
+        # POPRAWKA BŁĘDU: Usunięto argument pady z tk.Label i dodano do pack()
+        tk.Label(ks_frame, text="Semestr:", font=FONT_SUB,
+                 fg=TEXT, bg=BG).pack(anchor="w", pady=(8, 0))
+        
+        self._sem_frame = tk.Frame(ks_frame, bg=BG)
+        self._sem_frame.pack(anchor="w", pady=4)
+        self._build_semestr_buttons()
+
+        # ── Rok ───────────────────────────────────────────────────────────────
+        yr_row = tk.Frame(ks_frame, bg=BG)
+        yr_row.pack(anchor="w", pady=(6, 0))
+        tk.Label(yr_row, text="Rok (np. 2026):", font=FONT_SUB,
+                 fg=TEXT, bg=BG).pack(side="left", padx=(0, 8))
+        tk.Entry(yr_row, textvariable=self._year_var, font=FONT_UI,
+                 bg=BG_INPUT, fg=TEXT, width=8, relief="flat",
+                 highlightbackground=BORDER, highlightthickness=1).pack(
+                 side="left", ipady=5)
+
+        self._sep(parent)
+
+        # ── 3. Pracownie ──────────────────────────────────────────────────────
+        self._section_label(parent, "3  WYBIERZ PRACOWNIE W KTÓRYCH UCZESTNICZYSZ")
+
+        self._prac_outer = tk.Frame(parent, bg=BG, padx=32)
+        self._prac_outer.pack(fill="x")
+
+        self._no_data_label = tk.Label(
+            self._prac_outer,
+            text="⚠  Nie znaleziono pliku asp_pracownie.csv obok skryptu.\n"
+                 "   Umieść plik CSV w tym samym folderze co skrypt i uruchom ponownie.",
+            font=FONT_SUB, fg="#cc4400", bg=BG, justify="left"
+        )
+
+        self._prac_frame = tk.Frame(self._prac_outer, bg=BG)
+        self._prac_frame.pack(fill="x")
+
+        self._sep(parent)
+
+        # ── 4. Lokalizacja ────────────────────────────────────────────────────
+        self._section_label(parent, "4  GDZIE ZAPISAĆ ARCHIWUM")
+        loc_frame = tk.Frame(parent, bg=BG, padx=32)
+        loc_frame.pack(fill="x", pady=(0, 4))
+
+        loc_row = tk.Frame(loc_frame, bg=BG)
+        loc_row.pack(fill="x")
+
+        path_box = tk.Frame(loc_row, bg=BG, highlightbackground=BORDER, highlightthickness=1)
+        path_box.pack(side="left", fill="x", expand=True)
+        tk.Label(path_box, textvariable=self._location_var,
+                 font=FONT_MONO, fg=TEXT_DIM, bg=BG_INPUT,
+                 anchor="w", padx=10, pady=8).pack(fill="x")
+
+        tk.Button(loc_row, text="Wybierz…", font=FONT_UI,
+                  bg="#eeeeee", fg=TEXT, activebackground="#dddddd",
+                  relief="flat", padx=16, pady=8, cursor="hand2", bd=0,
+                  command=self._pick_location).pack(side="left", padx=(8, 0))
+
+        tk.Label(loc_frame,
+                 text=f"Folder archiwum zostanie stworzony automatycznie jako  NazwiskoI_ROK_SEM",
+                 font=FONT_SMALL, fg=TEXT_DIM, bg=BG).pack(anchor="w", pady=(4, 0))
+
+        self._sep(parent)
+
+        # ── Przycisk ──────────────────────────────────────────────────────────
+        btn_frame = tk.Frame(parent, bg=BG, padx=32, pady=12)
+        btn_frame.pack(fill="x")
+        self._run_btn = tk.Button(
+            btn_frame, text="▶   Utwórz strukturę archiwum",
+            font=("Helvetica Neue", 14, "bold") if IS_MAC else ("Arial", 12, "bold"),
+            bg=GREEN, fg=BG_DARK,
+            activebackground=GREEN_DARK, activeforeground=BG_DARK,
+            relief="flat", padx=28, pady=12, cursor="hand2", bd=0,
+            command=self._run
+        )
+        self._run_btn.pack(side="right")
+
+        # ── Log ───────────────────────────────────────────────────────────────
+        tk.Label(parent, text="LOG", font=FONT_LABEL, fg=TEXT_DIM,
+                 bg=BG).pack(anchor="w", padx=32, pady=(8, 0))
+        
+        # POPRAWKA: Usunięto argument pady z tk.Frame i dodano do pack()
+        log_frame = tk.Frame(parent, bg=BG, padx=32)
+        log_frame.pack(fill="x", pady=(4, 24))
+        
+        self._log_box = scrolledtext.ScrolledText(
+            log_frame, font=FONT_MONO, bg=BG_LOG, fg=TEXT,
+            relief="flat", padx=12, pady=8, height=10,
+            state="disabled", wrap="word",
+            highlightbackground=BORDER, highlightthickness=1
+        )
+        self._log_box.pack(fill="x")
+
+        tk.Label(parent, text="autor: Wiktor Suchy",
+                 font=FONT_SMALL, fg="#aaaaaa", bg=BG).pack(anchor="e", padx=12, pady=4)
+
+    def _build_semestr_buttons(self):
+        for w in self._sem_frame.winfo_children():
+            w.destroy()
+        kierunek = self._kierunek_var.get()
+        sems = SEMESTRY.get(kierunek, [])
+        current = self._semestr_var.get()
+        if current not in sems:
+            self._semestr_var.set(sems[0] if sems else "")
+        for s in sems:
+            rb = tk.Radiobutton(
+                self._sem_frame, text=s,
+                variable=self._semestr_var, value=s,
+                command=self._refresh_pracownie,
+                bg=BG, activebackground=BG, selectcolor=GREEN,
+                fg=TEXT, font=FONT_UI, relief="flat", bd=0
+            )
+            rb.pack(side="left", padx=4)
+
+    def _on_kierunek_change(self):
+        self._build_semestr_buttons()
+        self._refresh_pracownie()
+
+    def _refresh_pracownie(self):
+        # Sprawdzamy czy lista istnieje przed próbą pobrania dzieci
+        if not self._prac_frame.winfo_exists():
+            return
+            
+        for w in self._prac_frame.winfo_children():
+            w.destroy()
+        self._check_vars.clear()
+
+        if not self._db:
+            self._no_data_label.pack(anchor="w")
+            return
+        self._no_data_label.pack_forget()
+
+        kierunek = self._kierunek_var.get()
+        semestr  = self._semestr_var.get()
+        rows     = get_pracownie(self._db, kierunek, semestr)
+
+        if not rows:
+            tk.Label(self._prac_frame,
+                     text="Brak danych dla tej kombinacji kierunku i semestru.",
+                     font=FONT_SUB, fg=TEXT_DIM, bg=BG).pack(anchor="w")
+            return
+
+        # Grupuj po kategorii
+        by_cat: dict[str, list] = {}
+        for r in rows:
+            cat = r["kategoria"]
+            by_cat.setdefault(cat, []).append(r)
+
+        for cat in KATEGORIE_ORDER:
+            if cat not in by_cat:
+                continue
+            # Nagłówek kategorii
+            cat_row = tk.Frame(self._prac_frame, bg=BG, pady=2)
+            cat_row.pack(fill="x")
+            
+            # Usunięto argument pady z tk.Label i dodano do pack()
+            tk.Label(cat_row, text=f" {cat.upper()} ", font=FONT_LABEL,
+                     bg=GREEN, fg=BG_DARK, padx=6).pack(side="left", pady=2)
+
+            for p in by_cat[cat]:
+                key = p["kod_pracowni"]
+                var = tk.BooleanVar(value=False)
+                self._check_vars[key] = var
+
+                row = tk.Frame(self._prac_frame, bg=BG)
+                row.pack(fill="x", padx=8, pady=1)
+
+                cb = tk.Checkbutton(
+                    row, variable=var,
+                    bg=BG, activebackground=BG, selectcolor=GREEN,
+                    relief="flat", bd=0
+                )
+                cb.pack(side="left")
+
+                code_lbl = tk.Label(row, text=f" {key} ",
+                                    font=FONT_LABEL, bg="#eeeeee", fg=TEXT,
+                                    padx=4)
+                code_lbl.pack(side="left", padx=(2, 8), pady=1)
+
+                tk.Label(row, text=p["nazwa_przedmiotu"],
+                         font=FONT_SUB, fg=TEXT, bg=BG).pack(side="left")
+
+                prow_short = p["prowadzacy"].split("/")[0].strip()
+                tk.Label(row, text=f"  {prow_short}",
+                         font=FONT_SMALL, fg=TEXT_DIM, bg=BG).pack(side="left")
+
+    # ── Akcje ─────────────────────────────────────────────────────────────────
+
+    def _pick_location(self):
+        path = filedialog.askdirectory(title="Wybierz folder gdzie zapisać archiwum")
+        if path:
+            self._location_var.set(path)
+
+    def _log(self, msg):
+        self._log_box.config(state="normal")
+        self._log_box.insert("end", msg + "\n")
+        self._log_box.see("end")
+        self._log_box.config(state="disabled")
+
+    def _clear_log(self):
+        self._log_box.config(state="normal")
+        self._log_box.delete("1.0", "end")
+        self._log_box.config(state="disabled")
+
+    def _validate(self) -> bool:
+        if not self._surname_var.get().strip():
+            messagebox.showwarning("Brak danych", "Podaj nazwisko.")
+            return False
+        if not self._initial_var.get().strip():
+            messagebox.showwarning("Brak danych", "Podaj inicjał imienia.")
+            return False
+        if not self._fullname_var.get().strip():
+            messagebox.showwarning("Brak danych", "Podaj pełne imię i nazwisko.")
+            return False
+        if not self._album_var.get().strip():
+            messagebox.showwarning("Brak danych", "Podaj nr albumu.")
+            return False
+        if not self._year_var.get().strip():
+            messagebox.showwarning("Brak danych", "Podaj rok (np. 2026).")
+            return False
+        if not self._location_var.get().strip():
+            messagebox.showwarning("Brak lokalizacji", "Wybierz gdzie zapisać archiwum.")
+            return False
+        selected = [k for k, v in self._check_vars.items() if v.get()]
+        if not selected:
+            messagebox.showwarning("Brak pracowni", "Zaznacz co najmniej jedną pracownię.")
+            return False
+        return True
+
+    def _run(self):
+        if not self._validate():
+            return
+
+        self._clear_log()
+        self._run_btn.config(state="disabled", text="⏳  Tworzę strukturę…")
+
+        # Zbierz dane
+        surname   = self._surname_var.get().strip()
+        initial   = self._initial_var.get().strip().upper()
+        full_name = self._fullname_var.get().strip()
+        album     = self._album_var.get().strip()
+        year      = self._year_var.get().strip()
+        semester  = self._semestr_var.get()
+        location  = Path(self._location_var.get())
+        kierunek  = self._kierunek_var.get()
+
+        si = f"{surname}{initial}"  # np. SuchyW
+
+        meta = {
+            "surname_initial": si,
+            "year":            year,
+            "semester":        semester,
+            "full_name":       full_name,
+            "album":           album,
+        }
+
+        # Zbierz zaznaczone pracownie z bazy
+        selected_codes = [k for k, v in self._check_vars.items() if v.get()]
+        rows = get_pracownie(self._db, kierunek, semester)
+        selected = [r for r in rows if r["kod_pracowni"] in selected_codes]
+
+        self._log(f"Student:   {full_name}  (nr albumu: {album})")
+        self._log(f"Kierunek:  {KIERUNKI[kierunek]}")
+        self._log(f"Semestr:   {semester}  |  Rok: {year}")
+        self._log(f"Pracownie: {', '.join(selected_codes)}\n")
+
+        def worker():
+            try:
+                build_structure(None, location, meta, selected, self._log)
+            except Exception as e:
+                self._log(f"\n✗  Błąd: {e}")
+            finally:
+                self.after(0, lambda: self._run_btn.config(
+                    state="normal", text="▶   Utwórz strukturę archiwum"))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+
+if __name__ == "__main__":
+    app = SetupWizard()
+    app.mainloop()
