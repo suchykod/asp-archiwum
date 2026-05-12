@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='Archiwiktor setup',
+    name='awww1(Archiwiktor Wydział Wzornictwa Setup)',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

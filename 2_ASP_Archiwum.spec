@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='2_ASP_Archiwum',
+    name='awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo),
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
