@@ -3,14 +3,13 @@ name: Build apps
 on:
   push:
     tags:
-      - "v*" # uruchamia się przy tagu np. git tag v1.0 && git push --tags
+      - "v*"
 
 jobs:
   build:
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
-
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -23,8 +22,13 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller pillow
 
-      - name: Build Archiwiktor setup
-        run: pyinstaller --onefile --windowed --name "Archiwiktor setup" 1_ASP_Setup.py
+      - name: Build Archiwiktor setup (macOS)
+        if: runner.os == 'macOS'
+        run: pyinstaller --onefile --windowed --name "Archiwiktor setup" --add-data "Pracownie_ASP_v3.csv:." 1_ASP_Setup.py
+
+      - name: Build Archiwiktor setup (Windows)
+        if: runner.os == 'Windows'
+        run: pyinstaller --onefile --windowed --name "Archiwiktor setup" --add-data "Pracownie_ASP_v3.csv;." 1_ASP_Setup.py
 
       - name: Build 2_ASP_Archiwum
         run: pyinstaller --onefile --windowed --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
