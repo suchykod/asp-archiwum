@@ -5,7 +5,7 @@ a = Analysis(
     ['1_ASP_Setup.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('Pracownie_ASP_v3.csv', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -38,7 +38,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='Archiwiktor setup.app',
+    name='awww setup(Archiwiktor Wydział Wzornictwa setup).app',
     icon=None,
     bundle_identifier=None,
 )
