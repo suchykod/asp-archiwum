@@ -72,6 +72,18 @@ CSV_FILENAME = "Pracownie_ASP_v3.csv"
 
 # ── Pomocnicze ────────────────────────────────────────────────────────────────
 
+def resource_path(filename: str) -> Path:
+    base_dir = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+    candidate = base_dir / filename
+    if candidate.exists():
+        return candidate
+
+    candidate = Path(__file__).resolve().parent / filename
+    if candidate.exists():
+        return candidate
+
+    return Path.cwd() / filename
+
 def load_csv(csv_path: Path) -> list[dict]:
     rows = []
     if not csv_path.exists():
@@ -211,8 +223,7 @@ class SetupWizard(tk.Tk):
         self.configure(bg=BG)
         self.resizable(True, True)
 
-        script_dir = Path(sys.argv[0]).resolve().parent
-        self._db = load_csv(script_dir / CSV_FILENAME)
+        self._db = load_csv(resource_path(CSV_FILENAME))
         if not self._db:
             self._db = load_csv(Path.cwd() / CSV_FILENAME)
 
