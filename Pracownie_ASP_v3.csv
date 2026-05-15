@@ -10,7 +10,7 @@ kierunek,semestr,kod_pracowni,kategoria,nazwa_przedmiotu,prowadzacy
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",2,TM,Inne,Technologia i Modelowanie,"dr Maciej Stefański, Maciej Głowacki"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",2,TP,Inne,Techniki Prezentacyjne,"dr Zuzanna Łąpieś, Sebastian Zgutka"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,P3,Projektowe,Projektowanie 3,"dr Robert Pludra, prof. Wojciech Małolepszy"
-"Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,PKW,Inne,Pracownia Podstaw Komunikacji Wizualnej,"dr Magdalena Małczyńska-Umeda, dr Jakub Jezierski"
+"Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,PKW,Projektowe,Pracownia Podstaw Komunikacji Wizualnej,"dr Magdalena Małczyńska-Umeda, dr Jakub Jezierski"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,PPPP,Projektowe,Podstawy Projektowania Produktu Przemysłowego,"dr Dominik Glaros, Mikołaj Dymowski"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,KT,Inne,Projektowanie Konstrukcyjne i Technologiczne,"dr inż. Przemysław Siemiński, dr inż. Roman Grygoruk"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,M1,Plastyczne,Pracownia Malarstwa i Rysunku,dr Mikołaj Chylak
@@ -19,7 +19,7 @@ kierunek,semestr,kod_pracowni,kategoria,nazwa_przedmiotu,prowadzacy
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,RZ3,Plastyczne,Pracownia Rzeźby i Współistnienia,Zofia Kwasieborska-Keller
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",3,GA,Plastyczne,Gościnna Pracownia Artystyczna (lub spoza Wydziału Wzornictwa),…
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",4,P4,Projektowe,Projektowanie 4,"dr Robert Pludra, prof. Wojciech Małolepszy"
-"Projektowanie produktu, przestrzeni, przekazu (I stopnia)",4,PKW,Inne,Pracownia Podstaw Komunikacji Wizualnej,"dr Magdalena Małczyńska-Umeda, dr Jakub Jezierski"
+"Projektowanie produktu, przestrzeni, przekazu (I stopnia)",4,PKW,Projektowe,Pracownia Podstaw Komunikacji Wizualnej,"dr Magdalena Małczyńska-Umeda, dr Jakub Jezierski"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",4,PPPP,Projektowe,Podstawy Projektowania Produktu Przemysłowego,"dr Dominik Glaros, Mikołaj Dymowski"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",4,KT,Inne,Projektowanie Konstrukcyjne i Technologiczne,"dr inż. Przemysław Siemiński, dr inż. Roman Grygoruk"
 "Projektowanie produktu, przestrzeni, przekazu (I stopnia)",4,M1,Plastyczne,Pracownia Malarstwa i Rysunku,dr Mikołaj Chylak

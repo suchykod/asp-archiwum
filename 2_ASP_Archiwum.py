@@ -81,6 +81,19 @@ def has_material_subfolders(directory: Path) -> bool:
     """Sprawdza, czy folder zawiera podfoldery materiałów archiwum."""
     return any((directory / name).is_dir() for name in SUFFIX_MAP)
 
+def read_title_from_inf(directory: Path, meta: dict, workshop_code: str) -> str:
+    """Odczytuje tytuł projektu z pliku INF w podanym folderze."""
+    prefix = f"{meta['surname_initial']}_{workshop_code}_{meta['year']}_{meta['semester']}"
+    for f in directory.iterdir():
+        if f.is_file() and f.suffix.lower() == ".txt" and f.name.startswith(prefix):
+            for line in f.read_text(encoding="utf-8", errors="replace").splitlines():
+                if line.upper().startswith("TYTUŁ PRACY:"):
+                    title = line.split(":", 1)[1].strip()
+                    if title and "[" not in title:
+                        return sanitize(title)
+    return ""
+
+
 def iter_projects(root, meta):
     for level1 in sorted(root.iterdir()):
         if not level1.is_dir() or level1.name.startswith("."):
@@ -96,6 +109,10 @@ def iter_projects(root, meta):
 
             # Wariant A: materiały są bezpośrednio w folderze pracowni.
             if has_material_subfolders(level2):
+                # Jeśli folder pracowni nie zawiera tytułu w nazwie,
+                # spróbuj odczytać go z pliku INF.
+                if not rest:
+                    rest = read_title_from_inf(level2, meta, workshop_code)
                 yield level1.name, workshop_code, level2, (rest if rest else workshop_code)
                 continue
 
@@ -121,6 +138,21 @@ def process_large_archive(projects, meta, log):
     log("━━  DUŻE ARCHIWUM  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     for cat_label, workshop_code, project_dir, project_name in projects:
         log(f"\n  [{cat_label} / {workshop_code}] {project_name}")
+
+        # Przemianuj plik INF jeśli nie zawiera jeszcze tytułu projektu
+        expected_inf_with_title = (
+            f"{meta['surname_initial']}_{workshop_code}_{meta['year']}_{meta['semester']}"
+            f"_{sanitize(project_name)}_INF.txt"
+        )
+        old_inf = (
+            f"{meta['surname_initial']}_{workshop_code}_{meta['year']}_{meta['semester']}_INF.txt"
+        )
+        old_inf_path = project_dir / old_inf
+        new_inf_path = project_dir / expected_inf_with_title
+        if old_inf_path.exists() and not new_inf_path.exists() and old_inf != expected_inf_with_title:
+            old_inf_path.rename(new_inf_path)
+            log(f"    ✓  {old_inf}  →  {expected_inf_with_title}")
+
         for folder_name, suffix_code in SUFFIX_MAP.items():
             sub_dir = project_dir / folder_name
             if not sub_dir.is_dir():

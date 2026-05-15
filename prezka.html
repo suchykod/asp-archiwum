@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dolina Niesamowitości - Prezentacja</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      /* THE SETUP & CSS RESET */
+      * {
+        box-sizing: border-box;
+      }
+      p {
+        margin: 0;
+        margin-bottom: 15px;
+      }
+
+      body {
+        background-color: #050505;
+        display: grid;
+        gap: 30px;
+        grid-template-columns: 1fr;
+        margin: 0;
+        min-height: 100vh;
+        padding: 40px 0;
+        place-items: center;
+      }
+
+      /* SLIDE CONTAINER */
+      .slide-container {
+        align-items: flex-start;
+        background-color: #121212;
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        font-family: "Urbanist", sans-serif;
+        height: 720px;
+        overflow: hidden;
+        padding: 50px 60px;
+        position: relative;
+        width: 1280px;
+        border: 1px solid #222;
+      }
+
+      /* BACKGROUND DECORATIONS */
+      .slide-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+          radial-gradient(
+            circle at 100% 0%,
+            rgba(222, 255, 154, 0.03) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 0% 100%,
+            rgba(255, 176, 136, 0.03) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+      .slide-container::after {
+        background: rgba(222, 255, 154, 0.15);
+        bottom: 50px;
+        content: "";
+        height: 1px;
+        left: 60px;
+        position: absolute;
+        right: 60px;
+        z-index: 0;
+      }
+      .slide-container > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* TYPOGRAPHY */
+      .slide-container h1,
+      .slide-container h2,
+      .slide-container h3 {
+        color: #f5f5f5;
+        font-weight: 500;
+        font-family: "Urbanist", sans-serif;
+        margin: 0;
+      }
+      .slide-container h1 span,
+      .slide-container h2 span {
+        color: #deff9a;
+      }
+      .slide-container p,
+      .slide-container li,
+      .slide-container .subtitle {
+        color: #daffde;
+        font-family: "Urbanist", sans-serif;
+      }
+
+      .slide-container h1 {
+        font-size: 75px;
+        line-height: 1.1;
+        letter-spacing: -1px;
+      }
+      .slide-container .slide-title {
+        font-size: 55px;
+        line-height: 1.1;
+        margin-bottom: 40px;
+        width: 100%;
+        text-align: left;
+      }
+      .slide-container p,
+      .slide-container li,
+      .slide-container .subtitle {
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 1.6;
+      }
+      .slide-container .subtitle {
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #a1bfa4;
+      }
+
+      .content-area {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: center;
+        width: 100%;
+      }
+      .title-layout {
+        text-align: center;
+        width: 100%;
+      }
+      .title-layout h1 {
+        margin-bottom: 25px;
+      }
+
+      /* TWO COLUMN LAYOUT */
+      .two-column {
+        display: flex;
+        gap: 50px;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+      }
+      .two-column > div {
+        flex: 1;
+      }
+
+      .bullet-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+      .bullet-list li {
+        color: #f5f5f5;
+        padding-left: 35px;
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .bullet-list li::before {
+        content: "\f0da";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 20px;
+        color: #deff9a;
+        left: 0;
+        position: absolute;
+        top: 4px;
+      }
+      .bullet-list li strong {
+        color: #deff9a;
+        font-weight: 700;
+      }
+
+      .image-container {
+        height: 420px;
+        overflow: hidden;
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid rgba(222, 255, 154, 0.2);
+      }
+      .image-container img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
+
+      /* INTERACTIVE CAROUSEL STYLES */
+      .carousel-layout {
+        display: flex;
+        gap: 40px;
+        width: 100%;
+        height: 450px;
+        align-items: center;
+      }
+      .carousel-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+      }
+      .carousel-image-wrapper {
+        flex: 1;
+        height: 100%;
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #deff9a;
+        box-shadow: 0 0 20px rgba(222, 255, 154, 0.1);
+      }
+      .carousel-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.3s ease;
+      }
+
+      .carousel-controls {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+      .carousel-btn {
+        background: #deff9a;
+        color: #121212;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .carousel-btn:hover {
+        background: #b8f041;
+        transform: scale(1.05);
+      }
+      .carousel-btn:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: #333;
+        border-radius: 3px;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: #deff9a;
+        width: 10%;
+        transition: width 0.3s ease;
+      }
+
+      .valley-alert {
+        display: none;
+        color: #ff5e5e;
+        font-weight: bold;
+        font-size: 18px;
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #ff5e5e;
+        border-radius: 8px;
+        background: rgba(255, 94, 94, 0.1);
+      }
+
+      /* Bleed Layout for Evolution */
+      .bleed-image-layout {
+        align-items: start;
+        display: grid;
+        gap: 50px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 0;
+      }
+      .bleed-image-layout > .content-container {
+        padding: 60px 0 60px 60px;
+        display: flex;
+        flex-direction: column;
+      }
+      .bleed-image-layout > .image-container {
+        height: 100%;
+        border-radius: 0;
+        border: none;
+      }
+      .bleed-image-layout img.bleed-image-side {
+        border-radius: 0;
+        display: block;
+        height: 720px;
+        object-fit: cover;
+      }
+
+      /* Icons & Tiles */
+      .tiled-content {
+        display: flex;
+        gap: 30px;
+        width: 100%;
+        align-items: stretch;
+      }
+      .tile {
+        background-color: #1a1a1a;
+        border-radius: 16px;
+        border: 1px solid rgba(222, 255, 154, 0.1);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        padding: 35px;
+      }
+      .tile .icon-container {
+        align-items: center;
+        background-color: rgba(222, 255, 154, 0.1);
+        border-radius: 50%;
+        color: #deff9a;
+        display: flex;
+        font-size: 26px;
+        height: 60px;
+        justify-content: center;
+        width: 60px;
+        margin-bottom: 25px;
+      }
+      .tile h3 {
+        color: #deff9a;
+        font-size: 24px;
+        margin-bottom: 15px;
+      }
+
+      /* Chart */
+      .area-chart-container {
+        padding: 0 20px;
+        width: 100%;
+        height: 420px;
+      }
+      .area-chart-svg {
+        height: 100%;
+        overflow: visible;
+        width: 100%;
+      }
+      .area-chart-svg .grid line {
+        stroke-width: 1;
+        stroke: rgba(255, 255, 255, 0.1);
+      }
+      .area-chart-svg .area-fill {
+        fill: url(#area-gradient);
+        stroke: none;
+      }
+      .area-chart-svg .line-stroke {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 5;
+        stroke: #deff9a;
+      }
+      .area-chart-svg .data-point {
+        fill: #121212;
+        stroke-width: 4;
+        stroke: #deff9a;
+      }
+      .area-chart-svg .axis-labels {
+        fill: #a1bfa4;
+        font-size: 16px;
+        font-family: "Urbanist", sans-serif;
+        font-weight: 500;
+      }
+
+      /* Tables & Quotes */
+      .table-layout table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .table-layout th,
+      .table-layout td {
+        border-bottom: 1px solid rgba(222, 255, 154, 0.2);
+        padding: 15px 20px;
+        text-align: left;
+        color: #f5f5f5;
+      }
+      .table-layout th {
+        background-color: rgba(222, 255, 154, 0.05);
+        color: #deff9a;
+      }
+
+      .quote-layout blockquote {
+        color: #f5f5f5;
+        font-size: 40px;
+        font-weight: 500;
+        margin: 0 0 30px 0;
+        padding: 0 40px;
+        position: relative;
+        text-align: center;
+      }
+      .quote-layout cite {
+        color: #deff9a;
+        font-size: 22px;
+        font-style: italic;
+        display: block;
+        text-align: center;
+      }
+
+      .qa-layout {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+      }
+      .qa-layout h2 {
+        font-size: 70px;
+        margin-bottom: 20px;
+        color: #deff9a;
+      }
+
+      .ai-chat-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 500px;
+        width: 100%;
+        max-width: 1000px;
+        background: rgba(18, 18, 18, 0.8);
+        border: 1px solid rgba(222, 255, 154, 0.3);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        margin: 0 auto;
+      }
+      .chat-history {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .message {
+        padding: 15px 22px;
+        border-radius: 16px;
+        max-width: 85%;
+        font-size: 18px;
+        line-height: 1.5;
+        font-family: "Urbanist", sans-serif;
+      }
+      .message strong {
+        color: #deff9a;
+      }
+      .msg-user {
+        background: rgba(222, 255, 154, 0.15);
+        color: #daffde;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+      }
+      .msg-ai {
+        background: rgba(255, 255, 255, 0.08);
+        color: #f5f5f5;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        border: 1px solid rgba(222, 255, 154, 0.2);
+      }
+      .chat-input-area {
+        display: flex;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-top: 1px solid rgba(222, 255, 154, 0.2);
+        gap: 15px;
+      }
+      .chat-input-area input {
+        flex-grow: 1;
+        background: #1a1a1a;
+        border: 1px solid #444;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 30px;
+        font-size: 18px;
+        outline: none;
+        font-family: "Urbanist", sans-serif;
+        transition: 0.3s;
+      }
+      .chat-input-area input:focus {
+        border-color: #deff9a;
+        background: #222;
+      }
+      .chat-input-area button {
+        background: #deff9a;
+        color: #121212;
+        border: none;
+        padding: 0 30px;
+        border-radius: 30px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        font-family: "Urbanist", sans-serif;
+        font-size: 18px;
+      }
+      .chat-input-area button:hover {
+        background: #b8f041;
+        transform: scale(1.05);
+      }
+      .chat-input-area button:disabled {
+        background: #555;
+        color: #888;
+        transform: none;
+        cursor: not-allowed;
+      }
+
+      .analyzer-layout {
+        display: flex;
+        gap: 40px;
+        width: 100%;
+        height: 450px;
+        align-items: stretch;
+      }
+      .upload-area {
+        flex: 1;
+        border: 2px dashed rgba(222, 255, 154, 0.4);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        text-align: center;
+        padding: 20px;
+      }
+      .upload-area:hover {
+        border-color: #deff9a;
+        background: rgba(222, 255, 154, 0.08);
+      }
+      .upload-area input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+      }
+      .upload-preview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+        z-index: 5;
+        border-radius: 14px;
+      }
+      .analysis-result {
+        flex: 1.5;
+        background: #1a1a1a;
+        border-radius: 16px;
+        border: 1px solid rgba(222, 255, 154, 0.2);
+        padding: 35px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .typing-indicator {
+        display: none;
+        color: #deff9a;
+        font-style: italic;
+        font-size: 16px;
+        padding: 10px 0;
+      }
+      .ai-badge {
+        display: inline-block;
+        background: linear-gradient(90deg, #deff9a, #a6ff4d);
+        color: #050505;
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 800;
+        vertical-align: middle;
+        margin-left: 15px;
+        letter-spacing: 1px;
+        transform: translateY(-5px);
+      }
+
+      /* Custom Scrollbar for chat and analysis */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(222, 255, 154, 0.3);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(222, 255, 154, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Slide 1: Title -->
+    <div class="slide-container">
+      <div class="content-area">
+        <div class="title-layout">
+          <h1>Dolina Niesamowitości</h1>
+          <p class="subtitle" style="font-size: 32px; color: #deff9a">
+            Oswajanie inności: od ewolucji po AI
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: QR Code Intro -->
+    <div class="slide-container">
+      <h2 class="slide-title">Eksperyment <span>Na Żywo</span></h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div>
+            <p class="subtitle">10 kroków do człowieczeństwa</p>
+            <p>
+              Sprawdzimy zaraz Waszą empatię i ewolucyjne odruchy w praktyce.
+            </p>
+            <ul class="bullet-list" style="margin-top: 30px">
+              <li>Zeskanuj <strong>kod QR</strong> i otwórz formularz.</li>
+              <li>Za chwilę pokażę Ci 10 obrazów.</li>
+              <li>Oceniaj każdą postać błyskawicznie, instynktownie.</li>
+              <li><strong>Skala 1:</strong> Odraza / Strach / Niepokój</li>
+              <li><strong>Skala 5:</strong> Sympatia / Zaufanie</li>
+            </ul>
+          </div>
+          <div>
+            <div
+              class="image-container"
+              style="
+                background: #fff;
+                padding: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              <!-- Miejsce na Twój wygenerowany kod QR z Google Forms -->
+              <img
+                alt="Kod QR"
+                src="https://static.vecteezy.com/system/resources/previews/052/371/638/non_2x/neon-qr-code-glowing-on-black-background-vector.jpg"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: INTERACTIVE 10-STEP EXPERIMENT -->
+    <div class="slide-container">
+      <h2 class="slide-title">Fazy Realizmu: <span>Krok po Kroku</span></h2>
+      <div class="content-area">
+        <div class="carousel-layout">
+          <div class="carousel-info">
+            <div class="progress-bar">
+              <div class="progress-fill" id="c-progress"></div>
+            </div>
+            <p class="subtitle" id="c-counter">Obraz 1 / 10</p>
+            <h3 id="c-title" style="font-size: 36px; margin-bottom: 20px">
+              1. Maszyna Przemysłowa
+            </h3>
+            <p id="c-desc" style="font-size: 24px; color: #f5f5f5">
+              Pełna neutralność. Brak jakichkolwiek cech ludzkich. Przedmiot w
+              pełni użytkowy.
+            </p>
+
+            <div class="valley-alert" id="c-alert">
+              <i class="fa-solid fa-triangle-exclamation"></i> UWAGA: Wkraczamy
+              w Dolinę Niesamowitości
+            </div>
+
+            <div class="carousel-controls">
+              <button class="carousel-btn" id="btn-prev" disabled>
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+              <button class="carousel-btn" id="btn-next">
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          <div class="carousel-image-wrapper">
+            <img
+              id="c-img"
+              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+              alt="Faza realizmu"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript for Slide 3 Interactive Carousel -->
+    <script>
+      const experimentData = [
+        {
+          src: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+          title: "1. Maszyna Przemysłowa (0%)",
+          desc: "Pełna neutralność. Brak jakichkolwiek cech ludzkich. Czysta inżynieria.",
+          isValley: false,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&w=800&q=80",
+          title: "2. Uroczy Gadżet (10%)",
+          desc: "Podstawowa antropomorfizacja. Mózg zauważa 'oczy' i nadaje maszynie intencje.",
+          isValley: false,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=800&q=80",
+          title: "3. Plastikowy Humanoid (30%)",
+          desc: "Klasyczny robot asystent. Gładkie kształty, bezpieczny wygląd zabawki. Rosnąca sympatia.",
+          isValley: false,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
+          title: "4. Zmechanizowana Sylwetka (45%)",
+          desc: "Wyraźna budowa ludzka (korpus, stawy), ale w pełni mechaniczne wykończenie.",
+          isValley: false,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1515549832467-8783363e19b6?auto=format&fit=crop&w=800&q=80",
+          title: "5. Statyczna Rzeźba (60%)",
+          desc: "Manekin. Posiada ludzką twarz i proporcje, ale brak mikro-ruchów demaskuje go jako obiekt.",
+          isValley: false,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=800&q=80",
+          title: "6. Krawędź Doliny (75%)",
+          desc: "Zaawansowany Android. Silikonowa skóra połączona z widoczną mechaniką. Zaczynamy czuć lekki chłód.",
+          isValley: false,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1608681285090-67500cc64f52?auto=format&fit=crop&w=800&q=80",
+          title: "7. Dolina Niesamowitości I (85%)",
+          desc: "Hiperrealistyczna lalka. Niemal perfekcyjne rysy twarzy, ale 'szklane', nieruchome oczy budzą nasz lęk.",
+          isValley: true,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1618331835717-801e976710b2?auto=format&fit=crop&w=800&q=80",
+          title: "8. Dolina Niesamowitości II (90%)",
+          desc: "Cyfrowy Człowiek (CGI). Wygląda bardzo realistycznie, ale mózg podświadomie odbiera go jako sztuczny byt.",
+          isValley: true,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+          title: "9. Dolina Niesamowitości III (95%)",
+          desc: "Hiper-manekin. Nienaturalna asymetria i odcień twarzy, która udaje człowieka. Budzi silny dyskomfort.",
+          isValley: true,
+        },
+        {
+          src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
+          title: "10. Wyjście z Doliny (100%)",
+          desc: "Prawdziwy człowiek. Perfekcyjna mikroekspresja, ciepło żywej tkanki. Instynkt ostrzegawczy gaśnie.",
+          isValley: false,
+        },
+      ];
+
+      let currentIndex = 0;
+      const imgEl = document.getElementById("c-img");
+      const titleEl = document.getElementById("c-title");
+      const descEl = document.getElementById("c-desc");
+      const counterEl = document.getElementById("c-counter");
+      const progressEl = document.getElementById("c-progress");
+      const alertEl = document.getElementById("c-alert");
+      const btnPrev = document.getElementById("btn-prev");
+      const btnNext = document.getElementById("btn-next");
+
+      function updateCarousel() {
+        const data = experimentData[currentIndex];
+
+        // Fade effect
+        imgEl.style.opacity = 0;
+        setTimeout(() => {
+          imgEl.src = data.src;
+          imgEl.style.opacity = 1;
+        }, 150);
+
+        titleEl.innerText = data.title;
+        descEl.innerText = data.desc;
+        counterEl.innerText = `Obraz ${currentIndex + 1} / 10`;
+        progressEl.style.width = `${((currentIndex + 1) / 10) * 100}%`;
+
+        // Show/Hide Valley Alert
+        alertEl.style.display = data.isValley ? "block" : "none";
+
+        // Update Buttons
+        btnPrev.disabled = currentIndex === 0;
+        btnNext.disabled = currentIndex === experimentData.length - 1;
+      }
+
+      btnPrev.addEventListener("click", () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateCarousel();
+        }
+      });
+      btnNext.addEventListener("click", () => {
+        if (currentIndex < experimentData.length - 1) {
+          currentIndex++;
+          updateCarousel();
+        }
+      });
+    </script>
+
+    <!-- Slide 4: Mori Graph -->
+    <div class="slide-container">
+      <h2 class="slide-title">Wykres <span>Masahiro Moriego</span> (1970)</h2>
+      <div class="content-area">
+        <div class="area-chart-container">
+          <svg class="area-chart-svg" viewBox="0 0 1000 400">
+            <defs>
+              <linearGradient
+                id="area-gradient"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop
+                  offset="0%"
+                  style="stop-color: #deff9a"
+                  stop-opacity="0.4"
+                ></stop>
+                <stop
+                  offset="100%"
+                  style="stop-color: #deff9a"
+                  stop-opacity="0.0"
+                ></stop>
+              </linearGradient>
+            </defs>
+            <g class="grid">
+              <line x1="120" y1="0" x2="120" y2="340"></line>
+              <line x1="120" y1="340" x2="950" y2="340"></line>
+              <line
+                x1="120"
+                y1="200"
+                x2="950"
+                y2="200"
+                stroke-dasharray="5 5"
+              ></line>
+            </g>
+            <path
+              class="area-fill"
+              d="M 120 340 L 120 280 L 350 200 L 550 100 L 650 160 L 750 380 L 850 150 L 920 50 L 920 340 Z"
+            ></path>
+            <polyline
+              class="line-stroke"
+              points="120,280 350,200 550,100 650,160 750,380 850,150 920,50"
+            ></polyline>
+
+            <circle class="data-point" cx="120" cy="280" r="7"></circle>
+            <circle class="data-point" cx="550" cy="100" r="7"></circle>
+            <circle class="data-point" cx="750" cy="380" r="7"></circle>
+            <circle class="data-point" cx="920" cy="50" r="7"></circle>
+
+            <g class="axis-labels">
+              <text x="20" y="50">Sympatia</text>
+              <text x="20" y="380">Odraza</text>
+              <text x="500" y="380">Wysokie Podobieństwo do Człowieka →</text>
+
+              <text
+                x="130"
+                y="305"
+                style="font-size: 14px; fill: rgba(255, 255, 255, 0.6)"
+              >
+                Zdjęcie 1
+              </text>
+              <text
+                x="510"
+                y="80"
+                style="font-size: 14px; fill: rgba(255, 255, 255, 0.6)"
+              >
+                Zdjęcie 6
+              </text>
+              <text
+                x="690"
+                y="405"
+                style="font-size: 14px; fill: #ff5e5e; font-weight: bold"
+              >
+                Zdjęcia 7, 8, 9 (Dolina)
+              </text>
+              <text
+                x="890"
+                y="30"
+                style="font-size: 14px; fill: rgba(255, 255, 255, 0.6)"
+              >
+                Zdjęcie 10
+              </text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: System Wczesnego Ostrzegania -->
+    <div class="slide-container">
+      <h2 class="slide-title">Dlaczego wpadamy w <span>panikę?</span></h2>
+      <div class="content-area">
+        <div class="tiled-content">
+          <div class="tile">
+            <div class="icon-container"><i class="fa-solid fa-virus"></i></div>
+            <h3>Lęk przed chorobą</h3>
+            <p>
+              Nasz mózg, widząc nienaturalny kolor skóry czy sztywne ruchy
+              robota (zdjęcia 7-9), podświadomie identyfikuje go jako nosiciela
+              choroby lub ożywione zwłoki. Włącza się awersja.
+            </p>
+          </div>
+          <div class="tile">
+            <div class="icon-container">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>Błąd Procesora</h3>
+            <p>
+              Widząc obiekt uderzająco ludzki, nasz mózg oczekuje ludzkiej
+              mikromimiki twarzy. Gdy odczytuje brak drgania mięśni, traktuje to
+              jako przerażającą, nieludzką anomalię.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Bleed Layout - Ewolucja -->
+    <div class="slide-container bleed-image-layout">
+      <div class="content-container">
+        <h2 class="slide-title">Echa <span>Plejstocenu</span></h2>
+        <div class="bleed-text-side">
+          <p class="subtitle">Mechanizm obronny sprzed 50 000 lat</p>
+          <p>
+            Nie zawsze byliśmy sami. Kiedyś dzieliliśmy świat z
+            Neandertalczykami, Denisowianami czy Homo floresiensis.
+          </p>
+          <p>
+            Antropolodzy sugerują, że Dolina Niesamowitości wykształciła się, by
+            chronić wczesnych Homo Sapiens przed zbliżaniem się do "prawie
+            ludzkich", lecz konkurencyjnych gatunków hominidów. To wrodzony
+            radar wykrywający "obcego".
+          </p>
+          <p>
+            <strong
+              >Lęk przed androidem to w rzeczywistości odziedziczony strach
+              przed innym gatunkiem człowieka.</strong
+            >
+          </p>
+        </div>
+      </div>
+      <div class="image-container">
+        <!-- Realistyczna rekonstrukcja Neandertalczyka -->
+        <img
+          class="bleed-image-side"
+          alt="Rekonstrukcja twarzy Neandertalczyka"
+          src="https://cdn.mos.cms.futurecdn.net/v2/t:187,l:0,cw:1125,ch:1125,q:80,w:1125/HtnDf9s29uN4K2JYLopx5K.jpg"
+        />
+      </div>
+    </div>
+
+    <!-- Slide 7: Podsumowanie (Quote) -->
+    <div class="slide-container">
+      <div class="content-area">
+        <div class="quote-layout">
+          <blockquote>
+            "Aby bez lęku tworzyć sztuczną inteligencję i współczesne protezy,
+            musimy najpierw zmierzyć się z naszym własnym, ewolucyjnym
+            instynktem odrzucania inności."
+          </blockquote>
+          <cite>— Oswajanie Inności</cite>
+        </div>
+        <p
+          style="
+            margin-top: 40px;
+            text-align: center;
+            max-width: 800px;
+            color: #a1bfa4;
+            font-size: 20px;
+          "
+        >
+          Dziś świadomie projektujemy filmy CGI czy robotykę medyczną w taki
+          sposób, by omijać Dolinę – stawiając na jawną "mechaniczność" lub
+          głęboką stylizację.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 8: Źródła -->
+    <div class="slide-container">
+      <h2 class="slide-title">Źródła i <span>Bibliografia</span></h2>
+      <div class="content-area">
+        <div class="table-layout">
+          <table>
+            <thead>
+              <tr>
+                <th>Autor</th>
+                <th>Rok</th>
+                <th>Publikacja</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Masahiro Mori</td>
+                <td>1970</td>
+                <td>
+                  "Bukimi no Tani" (The Uncanny Valley), <i>Energy Journal</i>.
+                </td>
+              </tr>
+              <tr>
+                <td>Karl MacDorman</td>
+                <td>2009</td>
+                <td>
+                  Związek między lękiem przed śmiercią a odrazą do androidów.
+                </td>
+              </tr>
+              <tr>
+                <td>Steckenfinger & Ghazanfar</td>
+                <td>2009</td>
+                <td>
+                  Dowody na istnienie Doliny Niesamowitości u ssaków naczelnych.
+                </td>
+              </tr>
+              <tr>
+                <td>Paleoantropologia</td>
+                <td>2015+</td>
+                <td>
+                  Współczesne hipotezy ewolucyjne (izolacja gatunkowa
+                  hominidów).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: AI Image Analyzer -->
+    <div class="slide-container">
+      <h2 class="slide-title" style="margin-bottom: 20px">
+        Analizator Doliny
+        <span class="ai-badge"
+          ><i class="fa-solid fa-eye"></i> GEMINI VISION AI</span
+        >
+      </h2>
+      <div class="content-area">
+        <p
+          class="subtitle"
+          style="width: 100%; text-align: left; margin-bottom: 30px"
+        >
+          Wgraj zdjęcie twarzy lub maszyny, a model sztucznej inteligencji
+          przeanalizuje jej budowę i oceni pozycję w Dolinie Niesamowitości.
+        </p>
+        <div class="analyzer-layout">
+          <div class="upload-area" id="upload-box">
+            <i
+              class="fa-solid fa-cloud-arrow-up"
+              style="font-size: 50px; color: #deff9a; margin-bottom: 20px"
+            ></i>
+            <p style="font-size: 18px; line-height: 1.4">
+              Kliknij lub upuść plik obrazu,<br />aby przetestować AI
+            </p>
+            <input
+              type="file"
+              id="image-upload"
+              accept="image/png, image/jpeg, image/webp"
+            />
+            <img id="image-preview" class="upload-preview" alt="Podgląd" />
+          </div>
+          <div class="analysis-result" id="analysis-box">
+            <h3 style="margin-bottom: 20px; font-size: 28px; color: #deff9a">
+              <i class="fa-solid fa-microchip"></i> Werdykt Sztucznej
+              Inteligencji:
+            </h3>
+            <div
+              id="analysis-content"
+              style="font-size: 18px; line-height: 1.6"
+            >
+              <p
+                style="
+                  color: rgba(255, 255, 255, 0.4);
+                  text-align: center;
+                  margin-top: 50px;
+                "
+              >
+                <i
+                  class="fa-solid fa-robot"
+                  style="font-size: 40px; margin-bottom: 15px; display: block"
+                ></i>
+                Oczekuję na plik wejściowy... Wgraj obraz, aby rozpocząć proces
+                skanowania cech antropomorficznych.
+              </p>
+            </div>
+            <div class="typing-indicator" id="analyzer-loading">
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Gemini analizuje
+              teksturę skóry, proporcje i mikroekspresję...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Q&A with AI Chatbot -->
+    <div class="slide-container">
+      <div class="content-area">
+        <div
+          class="title-layout"
+          style="
+            margin-bottom: 25px;
+            text-align: left;
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <h2 style="font-size: 55px; text-align: left; margin: 0">
+            Pytania? Zapytaj <span>Eksperta</span>
+          </h2>
+          <span class="ai-badge" style="font-size: 18px; padding: 8px 18px"
+            ><i class="fa-solid fa-sparkles"></i> POWERED BY GEMINI LLM</span
+          >
+        </div>
+        <div class="ai-chat-wrapper">
+          <div class="chat-history" id="chat-history">
+            <div class="message msg-ai">
+              <i class="fa-solid fa-robot" style="margin-right: 10px"></i
+              ><strong>Ekspert AI:</strong> Dzień dobry! Jestem wirtualnym
+              asystentem obecnym na tej prezentacji. Moja wiedza obejmuje
+              psychologię, robotykę i mechanizmy ewolucyjne Homo Sapiens. Czy
+              ktoś z Państwa ma pytania dotyczące Doliny Niesamowitości?
+            </div>
+          </div>
+          <div
+            class="typing-indicator"
+            id="chat-loading"
+            style="padding: 0 25px 15px 25px"
+          >
+            <i class="fa-solid fa-circle-notch fa-spin"></i> AI generuje
+            odpowiedź...
+          </div>
+          <div class="chat-input-area">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Wpisz pytanie (np. Czy zwierzęta też odczuwają lęk przed Doliną?)..."
+              onkeypress="if (event.key === 'Enter') sendChatMessage();"
+            />
+            <button id="chat-send-btn" onclick="sendChatMessage()">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Integration Scripts -->
+    <script>
+      const GEMINI_API_KEY = ""; // Provided securely by Canvas runtime
+      const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
+
+      /* =========================================
+       FEATURE 1: Ekspert AI (Slide 10)
+       ========================================= */
+      const chatHistoryEl = document.getElementById("chat-history");
+      const chatInput = document.getElementById("chat-input");
+      const chatLoading = document.getElementById("chat-loading");
+      const chatBtn = document.getElementById("chat-send-btn");
+
+      // Inicjalizacja kontekstu (System Prompt zawarty w historii jako pierwsza wymiana)
+      let aiChatHistory = [
+        {
+          role: "user",
+          parts: [
+            {
+              text: "System Prompt: Od teraz jesteś prelegentem/ekspertem występującym na konferencji o Dolinie Niesamowitości (Uncanny Valley). Masz potężną wiedzę z zakresu psychologii ewolucyjnej, antropologii i projektowania robotów/CGI. Twoim zadaniem jest odpowiadanie na pytania publiczności. Bądź zwięzły (maksymalnie 2-3 zdania na odpowiedź!), merytoryczny, ale opowiadaj w fascynujący sposób z pasją. Używaj języka polskiego. Używaj formatowania markdown (pogrubienia) do wyróżnienia słów kluczowych.",
+            },
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {
+              text: "Zrozumiałem. Jestem gotów by odpowiadać zwięźle i fascynująco na pytania publiczności dotyczące Doliny Niesamowitości, łącząc wiedzę o maszynach z naszym ewolucyjnym dziedzictwem.",
+            },
+          ],
+        },
+      ];
+
+      async function sendChatMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // Add User Message to UI
+        appendMessage("user", text);
+        chatInput.value = "";
+        chatInput.disabled = true;
+        chatBtn.disabled = true;
+        chatLoading.style.display = "block";
+
+        // Add to history payload
+        aiChatHistory.push({ role: "user", parts: [{ text: text }] });
+
+        const payload = { contents: aiChatHistory };
+
+        try {
+          const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+
+          if (data.candidates && data.candidates[0].content) {
+            const aiResponseText = data.candidates[0].content.parts[0].text;
+            appendMessage("ai", aiResponseText);
+            // Save AI response to context for multi-turn conversation
+            aiChatHistory.push({
+              role: "model",
+              parts: [{ text: aiResponseText }],
+            });
+          } else {
+            appendMessage(
+              "ai",
+              "Wystąpił błąd poznawczy mojej sieci. Proszę sformułować pytanie inaczej.",
+            );
+          }
+        } catch (error) {
+          console.error("Gemini Chat Error:", error);
+          appendMessage(
+            "ai",
+            "Utracono połączenie z serwerami LLM. Proszę sprawdzić konsolę.",
+          );
+        } finally {
+          chatInput.disabled = false;
+          chatBtn.disabled = false;
+          chatLoading.style.display = "none";
+          chatInput.focus();
+        }
+      }
+
+      function appendMessage(sender, text) {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `message ${sender === "user" ? "msg-user" : "msg-ai"}`;
+
+        let formattedText = text.replace(
+          /\*\*(.*?)\*\*/g,
+          "<strong>$1</strong>",
+        );
+        if (sender === "ai")
+          formattedText =
+            `<i class="fa-solid fa-robot" style="margin-right: 10px;"></i>` +
+            formattedText;
+
+        msgDiv.innerHTML = formattedText;
+        chatHistoryEl.appendChild(msgDiv);
+        chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
+      }
+
+      /* =========================================
+       FEATURE 2: Analizator Vision (Slide 9)
+       ========================================= */
+      const imageUpload = document.getElementById("image-upload");
+      const imagePreview = document.getElementById("image-preview");
+      const analysisContent = document.getElementById("analysis-content");
+      const analyzerLoading = document.getElementById("analyzer-loading");
+
+      imageUpload.addEventListener("change", async function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Read and show preview
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+          const base64String = event.target.result;
+          imagePreview.src = base64String;
+          imagePreview.style.display = "block";
+
+          // Extract pure base64 without prefix
+          const pureBase64 = base64String.split(",")[1];
+          analyzeImageWithGemini(pureBase64, file.type);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      async function analyzeImageWithGemini(base64Data, mimeType) {
+        analysisContent.innerHTML = "";
+        analyzerLoading.style.display = "block";
+
+        const prompt = `Jesteś bezlitosnym i wybitnym analitykiem testującym obiekty pod kątem zjawiska 'Doliny Niesamowitości' (Uncanny Valley). 
+        Przeanalizuj przesłany obraz i napisz krótki raport (około 3-4 zdania). 
+        1. Rozpoznaj co jest na obrazie (człowiek, robot, animacja CGI). 
+        2. Oceń kluczowe cechy wywołujące lęk lub sympatię (np. asymetria twarzy, martwe oczy, tekstura skóry, nienaturalny uśmiech). 
+        3. Na samym końcu zawsze podaj pogrubiony werdykt w formacie: '**Indeks Niesamowitości: X/10**' (gdzie 1-3 to bezpieczny obiekt/sympatia, 4-6 to rosnący dyskomfort, 7-9 to głęboka Dolina Niesamowitości budząca strach/obrzydzenie, a 10 to perfekcyjny człowiek, wyjście z doliny). Mów po polsku.`;
+
+        const payload = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: mimeType, data: base64Data } },
+              ],
+            },
+          ],
+        };
+
+        try {
+          const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+
+          if (data.candidates && data.candidates[0].content) {
+            let aiResponse = data.candidates[0].content.parts[0].text;
+            // Format output
+            aiResponse = aiResponse
+              .replace(/\n/g, "<br>")
+              .replace(
+                /\*\*(.*?)\*\*/g,
+                '<strong style="color:#deff9a; font-size: 20px;">$1</strong>',
+              );
+            analysisContent.innerHTML = `<p>${aiResponse}</p>`;
+          } else {
+            analysisContent.innerHTML =
+              "<p style='color:#ff5e5e;'><i class='fa-solid fa-triangle-exclamation'></i> AI nie było w stanie skategoryzować tego obiektu.</p>";
+          }
+        } catch (error) {
+          console.error("Gemini Vision Error:", error);
+          analysisContent.innerHTML =
+            "<p style='color:#ff5e5e;'><i class='fa-solid fa-triangle-exclamation'></i> Błąd sieci neuronowej. Upewnij się, że masz połączenie z siecią.</p>";
+        } finally {
+          analyzerLoading.style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
