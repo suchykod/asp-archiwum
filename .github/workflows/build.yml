@@ -20,7 +20,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pyinstaller pillow
+        run: pip install pyinstaller pillow pymupdf
 
       - name: Build Archiwiktor setup (macOS)
         if: runner.os == 'macOS'
@@ -30,8 +30,13 @@ jobs:
         if: runner.os == 'Windows'
         run: pyinstaller --onefile --windowed --name "Archiwiktor setup" --add-data "Pracownie_ASP_v3.csv;." 1_ASP_Setup.py
 
-      - name: Build 2_ASP_Archiwum
-        run: pyinstaller --onefile --windowed --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
+      - name: Build 2_ASP_Archiwum (macOS)
+        if: runner.os == 'macOS'
+        run: pyinstaller --onefile --windowed --collect-all PIL --collect-all pymupdf --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
+
+      - name: Build 2_ASP_Archiwum (Windows)
+        if: runner.os == 'Windows'
+        run: pyinstaller --onefile --windowed --collect-all PIL --collect-all pymupdf --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
