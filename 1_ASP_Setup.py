@@ -112,6 +112,22 @@ def get_pracownie(db: list[dict], kierunek: str, semestr: str) -> list[dict]:
         and str(r.get("semestr", "")).strip().upper() == gui_s
     ]
 
+def workshop_key(row: dict) -> str:
+    code = str(row.get("kod_pracowni", "")).strip()
+    nazwa = str(row.get("nazwa_przedmiotu", "")).strip()
+    prowadzacy = str(row.get("prowadzacy", "")).strip()
+    return "||".join([code, nazwa, prowadzacy])
+
+def workshop_folder_name(row: dict, code_counts: dict[str, int]) -> str:
+    code = str(row.get("kod_pracowni", "")).strip()
+    if code_counts.get(code, 0) <= 1:
+        return code
+
+    nazwa = sanitize_filename(str(row.get("nazwa_przedmiotu", "")).strip())
+    prowadzacy = sanitize_filename(str(row.get("prowadzacy", "")).split("/")[0].strip())
+    parts = [code, nazwa, prowadzacy]
+    return "_".join(part for part in parts if part) or code
+
 def sanitize_filename(name: str) -> str:
     """Usuwa niedozwolone znaki z nazw folderów."""
     return re.sub(r'[\\/:*?"<>|]', "", name).strip()
@@ -166,6 +182,11 @@ def build_structure(root_dir: Path, parent_dir: Path, meta: dict,
         if cat in by_cat:
             by_cat[cat].append(p)
 
+    code_counts: dict[str, int] = {}
+    for p in selected:
+        code = str(p.get("kod_pracowni", "")).strip()
+        code_counts[code] = code_counts.get(code, 0) + 1
+
     def _create_subfolders_and_inf(base_dir, code, nazwa, prow, title, tags):
         for sub in SUBFOLDERS:
             sub_path = base_dir / sub
@@ -187,10 +208,10 @@ def build_structure(root_dir: Path, parent_dir: Path, meta: dict,
             code    = p["kod_pracowni"]
             nazwa   = p["nazwa_przedmiotu"]
             prow    = p["prowadzacy"]
-            w_dir   = cat_dir / f"{si}_{code}_{year}_{sem}"
+            w_dir   = cat_dir / f"{si}_{workshop_folder_name(p, code_counts)}_{year}_{sem}"
             w_dir.mkdir(exist_ok=True)
 
-            projects = projects_dict.get(code, [])
+            projects = projects_dict.get(workshop_key(p), [])
             titles = [p["title"] for p in projects if p["title"].strip()]
 
             if len(titles) <= 1:
@@ -448,12 +469,12 @@ class SetupWizard(tk.Tk):
             tk.Label(cat_row, text=f" {cat.upper()} ", font=FONT_LABEL, bg=GREEN, fg=BG_DARK, padx=6).pack(side="left", pady=2)
 
             for p in by_cat[cat]:
-                key = p["kod_pracowni"]
+                key = workshop_key(p)
                 var = tk.BooleanVar(value=False)
                 self._check_vars[key] = var
                 row = tk.Frame(self._prac_frame, bg=BG); row.pack(fill="x", padx=8, pady=1)
                 tk.Checkbutton(row, variable=var, bg=BG, activebackground=BG, selectcolor=GREEN, relief="flat", bd=0).pack(side="left")
-                tk.Label(row, text=f" {key} ", font=FONT_LABEL, bg="#eeeeee", fg=TEXT, padx=4).pack(side="left", padx=(2, 8), pady=1)
+                tk.Label(row, text=f" {p['kod_pracowni']} ", font=FONT_LABEL, bg="#eeeeee", fg=TEXT, padx=4).pack(side="left", padx=(2, 8), pady=1)
                 label_text = p["nazwa_przedmiotu"]
                 if current_kierunek == "PPP" and current_semestr == "L" and label_text == "dyplom licencjacki":
                     label_text = f'{label_text} ({p["prowadzacy"]})'
@@ -539,7 +560,7 @@ class SetupWizard(tk.Tk):
         projects_vars: dict[str, list[dict]] = {}
 
         for p in selected_workshops:
-            code = p["kod_pracowni"]
+            code = workshop_key(p)
             p_vars = [
                 {
                     "title_var": tk.StringVar(),
@@ -552,10 +573,10 @@ class SetupWizard(tk.Tk):
 
             sec = tk.Frame(frame, bg=BG)
             sec.pack(fill="x", pady=(10, 5))
-            tk.Label(sec, text=f"[{code}] {p['nazwa_przedmiotu']}", font=FONT_LABEL, bg=BG).pack(anchor="w")
+            tk.Label(sec, text=f"[{p['kod_pracowni']}] {p['nazwa_przedmiotu']}", font=FONT_LABEL, bg=BG).pack(anchor="w")
             tk.Label(
                 sec,
-                text=f"Pracownia: {code}  |  Prowadzący: {p['prowadzacy']}",
+                text=f"Pracownia: {p['kod_pracowni']}  |  Prowadzący: {p['prowadzacy']}",
                 font=FONT_SMALL,
                 fg=TEXT_DIM,
                 bg=BG,
@@ -805,12 +826,18 @@ class SetupWizard(tk.Tk):
             messagebox.showwarning("Brak danych", "Wypełnij wszystkie pola tekstowe i wybierz lokalizację.")
             return
         
-        selected_codes = [k for k, v in self._check_vars.items() if v.get()]
-        if not selected_codes:
+        selected_keys = [k for k, v in self._check_vars.items() if v.get()]
+        if not selected_keys:
             messagebox.showwarning("Brak pracowni", "Zaznacz co najmniej jedną pracownię.")
             return
 
-        selected_workshops = [r for r in get_pracownie(self._db, self._kierunek_var.get(), self._semestr_var.get()) if r["kod_pracowni"] in selected_codes]
+        selected_workshops = []
+        selected_key_set = set(selected_keys)
+        for r in get_pracownie(self._db, self._kierunek_var.get(), self._semestr_var.get()):
+            key = workshop_key(r)
+            if key not in selected_key_set:
+                continue
+            selected_workshops.append(r)
         
         projects_dict = self._show_projects_dialog(selected_workshops)
         if projects_dict is None:
