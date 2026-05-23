@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ASP Warszawa – Krok 1: Setup struktury folderów (Wizard + Projekty)"""
+#all working?
 
 import csv
 import re
