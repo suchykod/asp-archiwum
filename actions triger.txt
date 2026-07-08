@@ -1,0 +1,4 @@
+git add .
+git commit -m "Prepare release v16.0"
+git tag v16.0
+git push origin v16.0
