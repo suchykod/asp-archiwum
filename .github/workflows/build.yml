@@ -22,21 +22,34 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller pillow pymupdf
 
+      # ADDED: --icon=awww1.icns
       - name: Build awww1(Archiwiktor Wydział Wzornictwa Setup) (macOS)
         if: runner.os == 'macOS'
-        run: pyinstaller --onefile --windowed --name "awww1(Archiwiktor Wydział Wzornictwa Setup)" --add-data "Pracownie_ASP_v3.csv:." 1_ASP_Setup.py
+        run: pyinstaller --onefile --windowed --icon=awww1.icns --name "awww1(Archiwiktor Wydział Wzornictwa Setup)" --add-data "Pracownie_ASP_v3.csv:." 1_ASP_Setup.py
 
+      # ADDED: --icon=awww1.ico
       - name: Build awww1(Archiwiktor Wydział Wzornictwa Setup) (Windows)
         if: runner.os == 'Windows'
-        run: pyinstaller --onefile --windowed --name "awww1(Archiwiktor Wydział Wzornictwa Setup)" --add-data "Pracownie_ASP_v3.csv;." 1_ASP_Setup.py
+        run: pyinstaller --onefile --windowed --icon=awww1.ico --name "awww1(Archiwiktor Wydział Wzornictwa Setup)" --add-data "Pracownie_ASP_v3.csv;." 1_ASP_Setup.py
 
+      # ADDED: --icon=awww2.icns
       - name: awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo) (macOS)
         if: runner.os == 'macOS'
-        run: pyinstaller --onefile --windowed --collect-all PIL --collect-all pymupdf --name "awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo)" 2_ASP_Archiwum.py
+        run: pyinstaller --onefile --windowed --icon=awww2.icns --collect-all PIL --collect-all pymupdf --name "awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo)" 2_ASP_Archiwum.py
 
+      # ADDED: --icon=awww2.ico
       - name: awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo) (Windows)
         if: runner.os == 'Windows'
-        run: pyinstaller --onefile --windowed --collect-all PIL --collect-all pymupdf --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
+        run: pyinstaller --onefile --windowed --icon=awww2.ico --collect-all PIL --collect-all pymupdf --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
+
+      # NEW STEP: Compress Mac apps so GitHub doesn't destroy the icon metadata
+      - name: Compress Mac Apps
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          tar -czvf "awww1_Mac.tar.gz" "awww1(Archiwiktor Wydział Wzornictwa Setup).app"
+          tar -czvf "awww2_Mac.tar.gz" "awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo).app"
+          rm -rf *.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -1,0 +1,4 @@
+([('awww1(Archiwiktor Wydział Wzornictwa Setup)',
+   '/Users/w/scripts/photoPackage/asp-archiwum/dist/awww1(Archiwiktor Wydział '
+   'Wzornictwa Setup)',
+   'EXECUTABLE')],)
