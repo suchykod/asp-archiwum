@@ -243,7 +243,7 @@ def build_structure(root_dir: Path, parent_dir: Path, meta: dict,
 class SetupWizard(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title = app_title
+        self.title(app_title)
         self.configure(bg=BG)
         self.resizable(True, True)
 
