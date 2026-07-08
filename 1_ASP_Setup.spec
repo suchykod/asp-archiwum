@@ -35,10 +35,11 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='awww1.ico',
 )
 app = BUNDLE(
     exe,
     name='awww setup(Archiwiktor Wydział Wzornictwa setup).app',
-    icon=None,
+    icon='awww1.icns',
     bundle_identifier=None,
 )

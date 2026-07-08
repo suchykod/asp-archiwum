@@ -71,6 +71,8 @@ PROJECT_TAGS = [
 
 CSV_FILENAME = "Pracownie_ASP_v3.csv"
 
+app_title = "Archiwiktor cz.1 (setup)"
+
 # ── Pomocnicze ────────────────────────────────────────────────────────────────
 
 def resource_path(filename: str) -> Path:
@@ -241,7 +243,7 @@ def build_structure(root_dir: Path, parent_dir: Path, meta: dict,
 class SetupWizard(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Archiwiktor setup")
+        self.title = app_title
         self.configure(bg=BG)
         self.resizable(True, True)
 

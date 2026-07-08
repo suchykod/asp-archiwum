@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['2_ASP_Archiwum.py'],
+    ['awww2(archiwiktor cz.2 kompresja i nazewnictwo).py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -35,10 +35,11 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='awww2.ico',
 )
 app = BUNDLE(
     exe,
-    name='2_ASP_Archiwum.app',
-    icon=None,
+    name='awww2.app',
+    icon='awww2.icns',
     bundle_identifier=None,
 )
