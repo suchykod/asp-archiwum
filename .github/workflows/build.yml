@@ -40,7 +40,7 @@ jobs:
       # ADDED: --icon=awww2.ico
       - name: awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo) (Windows)
         if: runner.os == 'Windows'
-        run: pyinstaller --onefile --windowed --icon=awww2.ico --collect-all PIL --collect-all pymupdf --name "2_ASP_Archiwum" 2_ASP_Archiwum.py
+        run: pyinstaller --onefile --windowed --icon=awww2.ico --collect-all PIL --collect-all pymupdf --name "awww2(Archiwiktor Wydział Wzornictwa kompresja i nazewnictwo)" 2_ASP_Archiwum.py
 
       # NEW STEP: Compress Mac apps so GitHub doesn't destroy the icon metadata
       - name: Compress Mac Apps
